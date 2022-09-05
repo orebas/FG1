@@ -1,0 +1,3 @@
+[submodule "MPSolve"]
+	path = MPSolve
+	url = https://github.com/robol/MPSolve.git

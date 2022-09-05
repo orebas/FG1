@@ -5,15 +5,15 @@
 CPP = g++
 CFLAGS=-I. -Wall -pedantic  -ggdb --std=c++2a -Wno-variadic-macros 
 DEPS = ga.h
-#LIBS = -lm  -lboost_program_options -lboost_iostreams -lgsl -lflint -larb
+#LIBS = -lm  -lboost_program_options -lboost_iostreams -lgsl -lflintarb
 #FFTWLIBS = -lfftw3 -lfftw3f
-LIBS = -lmps -lflint -larb -lgmp -lmpfr
+LIBS = -lmps  -lflint -lflint-arb -lgmp -lmpfr
 
 benchmark: benchmark.cpp benchmark.hpp arbxx.hpp
-	$(CPP) $(CFLAGS) -I../MPSolve/include    -O0 benchmark.cpp   -o benchmark $(LIBS)
+	$(CPP) $(CFLAGS) -I./MPSolve/include    -O0 benchmark.cpp   -o benchmark $(LIBS)
 
 benchmark-fast: benchmark.cpp benchmark.hpp arbxx.hpp
-	$(CPP) $(CFLAGS) -I../MPSolve/include    -O3 -march=native benchmark.cpp   -o benchmark-fast $(LIBS)
+	$(CPP) $(CFLAGS) -I./MPSolve/include    -O3 -march=native benchmark.cpp   -o benchmark-fast $(LIBS)
 
 
 GyroAverage-OpenCL: GyroAverage.cpp ga.h  gautils.h
