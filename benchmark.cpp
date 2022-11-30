@@ -76,7 +76,14 @@ int main(int argc, char **argv) {
     */
     // end swap debugging
 
+
+   std::vector<double> dvec;
+   dvec.push_back(1);
+   dvec.push_back(2);
+   auto p = polyFromRoots(dvec,20);
+   p.print();
     std::cout << std::endl;
+    return 0;
     for (auto const &dir_entry : std::filesystem::directory_iterator{"."}) {
         if (dir_entry.path().extension() == ".pol") {
             // std::cout << dir_entry << " " << dir_entry.path().extension() << std::endl;
