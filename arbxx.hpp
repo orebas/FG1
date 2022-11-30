@@ -557,3 +557,18 @@ class ComplexPoly {
     // ComplexPoly from_mps_poly(mps_polynomial *local_poly) {
     // }
 };
+
+template <class T = double>
+ComplexPoly polyFromRoots(std::vector<T> vec,slong precision){
+    auto length = vec.size();
+    auto ptr = _acb_vec_init(length);
+    slong i=0;
+    for(;i< length; i++){
+        ACB cc(vec[i],0.0,precision);
+        acb_set(ptr+i, cc.c); //this is ugly.
+    }
+    ComplexPoly p(precision);
+    acb_poly_product_roots(p.pol,ptr,length,precision);
+    _acb_vec_clear(ptr,length);
+return p;
+}
