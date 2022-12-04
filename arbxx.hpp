@@ -556,6 +556,41 @@ class ComplexPoly {
 
     // ComplexPoly from_mps_poly(mps_polynomial *local_poly) {
     // }
+
+   std::vector<ACB> MPSolve(){
+    int n = this->degree();
+    mps _context * staus = mps_context_new();
+    mps_monomial_poly * poly = mps_monomial_poly_new (status, n);
+    mps_monomial_poly_set_coefficient_
+// Set the coefficients. We will solve x^n - 1 in here
+//mps_monomial_poly_set_coefficient_int (status, poly, 0, -1, 0);
+//mps_monomial_poly_set_coefficient_int (status, poly, n, 1, 0);
+
+for(slong i=0; i<= n ; i++){
+  ACB coeff = this->getCoeff(i);
+  auto re = acb_realref(coeff);
+  auto im = acb_imagref(coeff);
+  mps_monomial_poly_set_coefficient_f(status, poly, 0, 60, 0, 0);
+}
+// Select some common output options, i.e. 512 bits of precision
+// (more or less 200 digits guaranteed) and approximation goal.
+mps_context_set_output_prec (status, 512);
+mps_context_set_output_goal (status, MPS_OUTPUT_GOAL_APPROXIMATE);
+// Solve the polynomial
+mps_context_set_input_poly (status, poly);
+mps_mpsolve (status);
+// Get the roots in a <code>cplx_t</code> vector. Please note that
+// this make completely useless to have asked 512 bits of output
+// precision, and you should use mps_context_get_roots_m() to get
+// multiprecision approximation of the roots.
+cplx_t * results = cplx_valloc (n);
+mps_context_get_roots_d (status, &results, NULL);
+// Free the data used. This will free the monomial_poly if you have
+// not done it by yourself.
+mps_context_free (status);
+cplx_vfree (results);
+
+   }
 };
 
 template <class T = double>
@@ -572,3 +607,6 @@ ComplexPoly polyFromRoots(std::vector<T> vec,slong precision){
     _acb_vec_clear(ptr,length);
 return p;
 }
+
+
+
