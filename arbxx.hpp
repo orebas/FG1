@@ -141,12 +141,27 @@ public:
         arb_init(r);
         arb_set_d(r, x);
     }
+    ARB(int x, slong ip) : intprec(ip)
+    {
+        arb_init(r);
+        arb_set_d(r, x);
+    }
     ARB(const ARB &other) : ARB(other.r, other.intprec) {}
     ARB(ARB &&other)
     noexcept : intprec(other.intprec)
     {
         arb_swap(arb_ptr_int(), other.arb_ptr_int());
         other.intprec = -1;
+    }
+    ARB(const arf_t arf, slong prec) : intprec(prec)
+    {
+        arb_init(r);
+        arb_set_arf(r, arf);
+    }
+    ARB(const mpfr_t mpfr, slong prec) : intprec(prec)
+    {
+        arb_init(r);
+        arb_set_interval_mpfr(r, mpfr, mpfr, prec);
     }
 
     ARB &operator=(const ARB &other)
@@ -156,7 +171,7 @@ public:
 
     ARB root_ui(slong e)
     {
-        ARB temp(0, intprec);
+        ARB temp(0.0, intprec);
         arb_root_ui(temp.r, this->r, e, intprec);
         return temp;
     }
@@ -280,17 +295,45 @@ public:
         acb_set_arb(this->c, r.r);
     }
 
+    ACB(const ARB &r, const ARB &i) : intprec(r.intprec)
+    {
+        acb_init(c);
+        acb_set_arb_arb(this->c, r.r, i.r);
+    }
+
+    /* ACB(const mpc_t &cold, slong prec) : intprec(prec)
+    {
+        mpfr_t rempfr, immpfr;
+        arf_t rearf, imarf;
+        // arf_init(rearf);
+        // arf_init(imarf);
+        mpfr_init(rempfr);
+        mpfr_init(immpfr);
+        mpfr_set_f(rempfr, cold->r);
+        mpfr_set_f(immpfr, cold->i);
+        // arf_set_mpfr(rearf, rempfr);
+        // arf_set_mpfr(imarf, immpfr);
+
+        ACB result(ARB(rempfr, prec), (ARB(immpfr, prec)));
+        mpfr_clear(rempfr);
+        mpfr_clear(immpfr);
+        // arf_clear(rearf);
+        // arf_clear(imarf);
+        return result;
+    }
+    */
+
     ACB(int a, int b, slong ip) : intprec(ip)
     {
         acb_init(c);
         acb_set_si_si(c, a, b);
     }
 
-    ACB(slong a, slong b, slong ip) : intprec(ip)
-    {
-        acb_init(c);
-        acb_set_si_si(c, a, b);
-    }
+    /* ACB(slong a, slong b, slong ip) : intprec(ip)
+     {
+         acb_init(c);
+         acb_set_si_si(c, a, b);
+     }*/
     ACB(const mpc_t &p, slong local_prec) : intprec(local_prec)
     {
         acb_init(c);
@@ -471,6 +514,7 @@ public:
         pthread_mutex_lock(&p->mfpc_mutex[0]);
         if (mpc_get_prec(p->mfpc[0]) < wp)
         {
+            std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp << std::endl;
             pthread_mutex_unlock(&p->mfpc_mutex[0]);
             mps_monomial_poly_raise_precision(s, MPS_POLYNOMIAL(p), wp);
         }
@@ -651,56 +695,86 @@ public:
     // ComplexPoly from_mps_poly(mps_polynomial *local_poly) {
     // }
 
-   std::vector<ACB> MPSolve(){
-    int n = this->degree();
-    mps _context * staus = mps_context_new();
-    mps_monomial_poly * poly = mps_monomial_poly_new (status, n);
-    mps_monomial_poly_set_coefficient_
-// Set the coefficients. We will solve x^n - 1 in here
-//mps_monomial_poly_set_coefficient_int (status, poly, 0, -1, 0);
-//mps_monomial_poly_set_coefficient_int (status, poly, n, 1, 0);
+    std::vector<ACB> MPSolve(slong prec)
+    {
+        int n = this->degree();
+        mps_context *status = mps_context_new();
+        mps_monomial_poly *poly = mps_monomial_poly_new(status, n);
+        mps_context_set_input_prec(status, prec);
+        // mps_monomial_poly_raise_precision(status, MPS_POLYNOMIAL(poly), prec);
+        //  Set the coefficients. We will solve x^n - 1 in here
+        //  mps_monomial_poly_set_coefficient_int (status, poly, 0, -1, 0);
+        //  mps_monomial_poly_set_coefficient_int (status, poly, n, 1, 0);
+        std::cout << "monpoly prec" << mps_monomial_poly_get_precision(status, poly) << std::endl;
+        for (slong i = 0; i <= n; i++)
+        {
+            mpfr_t rempfr, immpfr;
+            mpf_t regmp, imgmp;
+            mpc_t GMPComplex;
+            mpfr_init(rempfr);
+            mpfr_init(immpfr);
 
-for(slong i=0; i<= n ; i++){
-  ACB coeff = this->getCoeff(i);
-  auto re = acb_realref(coeff);
-  auto im = acb_imagref(coeff);
-  mps_monomial_poly_set_coefficient_f(status, poly, 0, 60, 0, 0);
-}
-// Select some common output options, i.e. 512 bits of precision
-// (more or less 200 digits guaranteed) and approximation goal.
-mps_context_set_output_prec (status, 512);
-mps_context_set_output_goal (status, MPS_OUTPUT_GOAL_APPROXIMATE);
-// Solve the polynomial
-mps_context_set_input_poly (status, poly);
-mps_mpsolve (status);
-// Get the roots in a <code>cplx_t</code> vector. Please note that
-// this make completely useless to have asked 512 bits of output
-// precision, and you should use mps_context_get_roots_m() to get
-// multiprecision approximation of the roots.
-cplx_t * results = cplx_valloc (n);
-mps_context_get_roots_d (status, &results, NULL);
-// Free the data used. This will free the monomial_poly if you have
-// not done it by yourself.
-mps_context_free (status);
-cplx_vfree (results);
+            ACB coeff = this->getCoeff(i);
+            auto re = arb_midref(acb_realref(coeff.c));
+            auto im = arb_midref(acb_imagref(coeff.c));
+            arf_get_mpfr(rempfr, re, MPFR_RNDN);
+            arf_get_mpfr(immpfr, im, MPFR_RNDN);
+            mpf_init2(regmp, prec * 4);
+            mpf_init2(imgmp, prec * 4);
+            mpfr_get_f(regmp, rempfr, MPFR_RNDN);
+            mpfr_get_f(imgmp, immpfr, MPFR_RNDN);
+            mpc_init_set_f(GMPComplex, regmp, imgmp);
+            mps_monomial_poly_set_coefficient_f(status, poly, i, GMPComplex);
+            mpfr_clear(rempfr);
+            mpfr_clear(immpfr);
+            mpf_clear(regmp);
+            mpf_clear(imgmp);
+            mpc_clear(GMPComplex);
+        }
+        ComplexPoly testc(status, poly, prec);
+        testc.print(25);
+        // Select some common output options, i.e. 512 bits of precision
+        // (more or less 200 digits guaranteed) and approximation goal.
+        mps_context_set_output_prec(status, prec * 3.4); // TODO fix decimal vs binary everyhwere
+        mps_context_set_output_goal(status, MPS_OUTPUT_GOAL_APPROXIMATE);
+        // Solve the polynomial
+        mps_context_set_input_poly(status, MPS_POLYNOMIAL(poly));
+        mps_mpsolve(status);
+        // Get the roots in a <code>cplx_t</code> vector. Please note that
+        // this make completely useless to have asked 512 bits of output
+        // precision, and you should use mps_context_get_roots_m() to get
+        // multiprecision approximation of the roots.
+        mpc_t *results = nullptr;
+        mps_context_get_roots_m(status, &results, nullptr); // inclusion radii discarded.
+        // Free the data used. This will free the monomial_poly if you have
+        // not done it by yourself.
 
-   }
+        std::vector<ACB> roots;
+        for (slong i = 0; i < n; i++)
+        {
+            roots.push_back(ACB(results[i], prec));
+            // mpc_clear(results[i]);
+        }
+        mps_monomial_poly_free(status, MPS_POLYNOMIAL(poly));
+        mps_context_free(status);
+        mpc_vclear(results, n);
+        return roots;
+    }
 };
 
 template <class T = double>
-ComplexPoly polyFromRoots(std::vector<T> vec,slong precision){
+ComplexPoly polyFromRoots(std::vector<T> vec, slong precision)
+{
     auto length = vec.size();
     auto ptr = _acb_vec_init(length);
-    slong i=0;
-    for(;i< length; i++){
-        ACB cc(vec[i],0.0,precision);
-        acb_set(ptr+i, cc.c); //this is ugly.
+    slong i = 0;
+    for (; i < length; i++)
+    {
+        ACB cc((T)vec[i], (T)0.0, precision);
+        acb_set(ptr + i, cc.c); // this is ugly.
     }
     ComplexPoly p(precision);
-    acb_poly_product_roots(p.pol,ptr,length,precision);
-    _acb_vec_clear(ptr,length);
-return p;
+    acb_poly_product_roots(p.pol, ptr, length, precision);
+    _acb_vec_clear(ptr, length);
+    return p;
 }
-
-
-

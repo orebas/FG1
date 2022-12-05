@@ -10,7 +10,7 @@ DEPS = ga.h
 LIBS = -lmps  -lflint -lflint-arb -lgmp -lmpfr
 
 benchmark: benchmark.cpp benchmark.hpp arbxx.hpp
-	$(CPP) $(CFLAGS) -I./MPSolve/include    -O0 benchmark.cpp   -o benchmark $(LIBS)
+	$(CPP) $(CFLAGS) -I./MPSolve/include -ggdb -fsanitize=address -static-libasan    -O0 benchmark.cpp   -o benchmark $(LIBS)
 
 benchmark-fast: benchmark.cpp benchmark.hpp arbxx.hpp
 	$(CPP) $(CFLAGS) -I./MPSolve/include    -O3 -march=native benchmark.cpp   -o benchmark-fast $(LIBS)

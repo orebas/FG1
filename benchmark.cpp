@@ -77,23 +77,22 @@ int main(int argc, char **argv)
     */
     // end swap debugging
 
-
-   std::vector<double> dvec;
-   dvec.push_back(1);
-   dvec.push_back(2);
-   auto p = polyFromRoots(dvec,20);
-   p.print();
-    std::cout << std::endl;
-<<<<<<< HEAD
+    std::vector<int> dvec;
+    for (int i = 1; i <= 20; i++)
+    {
+        dvec.push_back(i);
+    }
+    auto p = polyFromRoots<int>(dvec, 300);
+    p.print(25);
+    auto res = p.MPSolve(300);
+    std::cout << "Roots:\n"
+              << res << std::endl
+              << std::endl;
     return 0;
-    for (auto const &dir_entry : std::filesystem::directory_iterator{"."}) {
-        if (dir_entry.path().extension() == ".pol") {
-=======
     for (auto const &dir_entry : std::filesystem::directory_iterator{"."})
     {
         if (dir_entry.path().extension() == ".pol")
         {
->>>>>>> refs/remotes/origin/main
             // std::cout << dir_entry << " " << dir_entry.path().extension() << std::endl;
             parsePol(dir_entry.path().string());
         }
@@ -326,14 +325,14 @@ void temp_print(mps_context *local_s, mps_polynomial *poly)
 std::vector<ACB> powersums(slong depth, slong k, slong prec)
 {
     std::vector<ACB> results;
-    slong i, d;
+    int i, d;
     for (d = 0; d < depth + 1; d++)
     {
         ACB temp(0, 0, prec);
 
         for (i = 1; i <= k; i++)
         {
-            temp += (ACB(i, (slong)0, prec)).power(d);
+            temp += (ACB((int)i, (int)0, prec)).power(d);
         }
         results.push_back(temp);
     }
