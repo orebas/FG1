@@ -78,13 +78,13 @@ int main(int argc, char **argv)
     // end swap debugging
 
     std::vector<int> dvec;
-    for (int i = 1; i <= 20; i++)
+    for (int i = 1; i <= 40; i++)
     {
         dvec.push_back(i);
     }
-    auto p = polyFromRoots<int>(dvec, 300);
+    auto p = polyFromRoots<int>(dvec, 800);
     p.print(25);
-    auto res = p.MPSolve(300);
+    auto res = p.MPSolve(800);
     std::cout << "Roots:\n"
               << res << std::endl
               << std::endl;

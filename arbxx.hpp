@@ -514,9 +514,13 @@ public:
         pthread_mutex_lock(&p->mfpc_mutex[0]);
         if (mpc_get_prec(p->mfpc[0]) < wp)
         {
+            // DEBUG
+            // std::cout << "debug :" << p->density << std::endl;
+            // END DEBUG
             std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp << std::endl;
             pthread_mutex_unlock(&p->mfpc_mutex[0]);
             mps_monomial_poly_raise_precision(s, MPS_POLYNOMIAL(p), wp);
+            std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp << std::endl;
         }
         else
             pthread_mutex_unlock(&p->mfpc_mutex[0]);
@@ -700,8 +704,8 @@ public:
         int n = this->degree();
         mps_context *status = mps_context_new();
         mps_monomial_poly *poly = mps_monomial_poly_new(status, n);
-        mps_context_set_input_prec(status, prec);
-        // mps_monomial_poly_raise_precision(status, MPS_POLYNOMIAL(poly), prec);
+        mps_context_set_input_prec(status, prec + 1);
+        mps_monomial_poly_raise_precision(status, MPS_POLYNOMIAL(poly), prec);
         //  Set the coefficients. We will solve x^n - 1 in here
         //  mps_monomial_poly_set_coefficient_int (status, poly, 0, -1, 0);
         //  mps_monomial_poly_set_coefficient_int (status, poly, n, 1, 0);
@@ -711,8 +715,8 @@ public:
             mpfr_t rempfr, immpfr;
             mpf_t regmp, imgmp;
             mpc_t GMPComplex;
-            mpfr_init(rempfr);
-            mpfr_init(immpfr);
+            mpfr_init2(rempfr, prec);
+            mpfr_init2(immpfr, prec);
 
             ACB coeff = this->getCoeff(i);
             auto re = arb_midref(acb_realref(coeff.c));
@@ -758,6 +762,49 @@ public:
         mps_monomial_poly_free(status, MPS_POLYNOMIAL(poly));
         mps_context_free(status);
         mpc_vclear(results, n);
+
+        struct
+        {
+            bool operator()(const ACB &a, const ACB &b) const
+            {
+                // ARF l = a.abs_ubound_arf();
+                // ARF r = b.abs_ubound_arf();
+                // int i = arf_cmp(l.f, r.f);
+                // return i < 0;
+
+                ARB re1(0.0, a.intprec);
+                ARB im1(0.0, b.intprec);
+
+                ARB re2(0.0, a.intprec);
+                ARB im2(0.0, b.intprec);
+
+                acb_get_real(re1.r, a.c);
+                acb_get_real(re2.r, b.c);
+                acb_get_imag(im1.r, a.c);
+                acb_get_imag(im2.r, b.c);
+
+                if (arb_lt(re1.r, re2.r))
+                {
+                    return true;
+                }
+                if (arb_gt(re1.r, re2.r))
+                {
+                    return false;
+                }
+                if (arb_lt(im1.r, im2.r))
+                {
+                    return true;
+                }
+                if (arb_gt(im1.r, im2.r))
+                {
+                    return false;
+                }
+                return false;
+            }
+        } customLessLex;
+
+        std::sort(roots.begin(), roots.end(), customLessLex);
+
         return roots;
     }
 };

@@ -8,9 +8,9 @@ DEPS = ga.h
 #LIBS = -lm  -lboost_program_options -lboost_iostreams -lgsl -lflintarb
 #FFTWLIBS = -lfftw3 -lfftw3f
 LIBS = -lmps  -lflint -lflint-arb -lgmp -lmpfr
-
+#-fsanitize=address -static-libasan
 benchmark: benchmark.cpp benchmark.hpp arbxx.hpp
-	$(CPP) $(CFLAGS) -I./MPSolve/include -ggdb -fsanitize=address -static-libasan    -O0 benchmark.cpp   -o benchmark $(LIBS)
+	$(CPP) $(CFLAGS) -I./MPSolve/include -ggdb     -O0 benchmark.cpp   -o benchmark $(LIBS)
 
 benchmark-fast: benchmark.cpp benchmark.hpp arbxx.hpp
 	$(CPP) $(CFLAGS) -I./MPSolve/include    -O3 -march=native benchmark.cpp   -o benchmark-fast $(LIBS)
