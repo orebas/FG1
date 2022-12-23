@@ -7,14 +7,18 @@ CFLAGS=-I. -Wall -pedantic  -ggdb --std=c++2a -Wno-variadic-macros
 DEPS = ga.h
 #LIBS = -lm  -lboost_program_options -lboost_iostreams -lgsl -lflintarb
 #FFTWLIBS = -lfftw3 -lfftw3f
-LIBS = -lmps  -lflint -lflint-arb -lgmp -lmpfr
+LIBS =   -lflint -lflint-arb -lgmp -lmpfr
 #-fsanitize=address -static-libasan
 benchmark: benchmark.cpp benchmark.hpp arbxx.hpp
-	$(CPP) $(CFLAGS) -I./MPSolve/include -ggdb     -O0 benchmark.cpp   -o benchmark $(LIBS)
+	$(CPP) $(CFLAGS) -I./MPSolve/include -L ./MPSolve/libmps -ggdb     -O0 benchmark.cpp   -o benchmark $(LIBS) -lmps
 
 benchmark-fast: benchmark.cpp benchmark.hpp arbxx.hpp
 	$(CPP) $(CFLAGS) -I./MPSolve/include    -O3 -march=native benchmark.cpp   -o benchmark-fast $(LIBS)
 
+
+#-fsanitize=undefined -fno-sanitize-recover=all -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fno-sanitize=null -fno-sanitize=alignment 
+benchmark-asan: benchmark.cpp benchmark.hpp arbxx.hpp
+	$(CPP) $(CFLAGS) -I./MPSolve/include    -ggdb -O0 benchmark.cpp   -o benchmark-asan fsanitize=address -static-libasan $(LIBS)
 
 GyroAverage-OpenCL: GyroAverage.cpp ga.h  gautils.h
 	$(CPP) GyroAverage.cpp   -std=c++14 -Wall   -O3  -I. -D_GLIBCXX_USE_CXX11_ABI=0  -fopenmp -march=native -o GyroAverage-OpenCL -DVIENNACL_WITH_OPENCL -lOpenCL -I/usr/include/boost169 $(LIBS) $(FFTWLIBS)
