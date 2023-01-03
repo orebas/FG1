@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cassert>
 #include <random>
 
@@ -86,8 +88,9 @@ public:
             if (j % 2 == 0) {
               result +=
                   calcCoeff(p - 1, j) *
-                  calcCoeff(p - 1,
-                            2 * k - j); // TODO use better function to times 2
+                  calcCoeff(
+                      p - 1,
+                      2 * k - j); // TODO(orebas) use better function to times 2
             } else {
               result -= calcCoeff(p - 1, j) * calcCoeff(p - 1, 2 * k - j);
             }
@@ -97,14 +100,16 @@ public:
             if (j % 2 == 0) {
               result +=
                   calcCoeff(p - 1, j) *
-                  calcCoeff(p - 1,
-                            2 * k - j); // TODO use better function to times 2
+                  calcCoeff(
+                      p - 1,
+                      2 * k - j); // TODO(orebas) use better function to times 2
             } else {
               result -= calcCoeff(p - 1, j) * calcCoeff(p - 1, 2 * k - j);
             }
           }
         }
-        acb_mul_2exp_si(result.c, result.c, 1); // TODO make a member function.
+        acb_mul_2exp_si(result.c, result.c,
+                        1); // TODO(orebas) make a member function.
         if (k % 2 == 0) {
           result += calcCoeff(p - 1, k).square();
         } else {
@@ -127,7 +132,7 @@ public:
         result = qcoefficients.at(key);
       } else {
         for (slong i = 0; i <= 2 * k + 1;
-             i++) { // TODO this is too many iteration, trim it down
+             i++) { // TODO(orebas) this is too many iteration, trim it down
           slong j = 2 * k + 1 - i;
 
           if (i % 2 == 0) {
@@ -227,7 +232,7 @@ public:
       acb_poly_scalar_mul_2exp_si(
           t3.pol, t3.pol, -1); // at this point t3 should be divisible by x
 
-      acb_poly_shift_right(t3.pol, t3.pol, 1); // TODO: "unsquare x^2"
+      acb_poly_shift_right(t3.pol, t3.pol, 1); // TODO(orebas): "unsquare x^2"
 
       t3.unsquare();
 
@@ -255,7 +260,7 @@ public:
         acb_div(y1.c, y0.c, y1.c, y0.intprec);
         absval = y1.abs();
         arb_root_ui(absval.r, absval.r, std::pow(2, i), y1.intprec);
-        outp[i].push_back(absval); // TODO FIX ARB
+        outp[i].push_back(absval); // TODO(orebas) FIX ARB
                                    // std::cout << "[" << j << "]  ";
                                    // arb_printd(absval, 30);
                                    // std::cout << " " << std::endl;
@@ -329,10 +334,10 @@ std::ostream &operator<<(std::ostream &ost, const ACB &ls) {
   return ost;
 }
 
-std::vector<ARB> ACBVectorComp(
-    std::vector<ACB> &a,
-    std::vector<ACB>
-        &b) { // compare b with a as the reference  TODO make this const later
+std::vector<ARB>
+ACBVectorComp(std::vector<ACB> &a,
+              std::vector<ACB> &b) { // compare b with a as the reference
+                                     // TODO(orebas) make this const later
   std::vector<ARB> results;
   slong prec = a[0].intprec;
   // std::cout << a.size() << " " << b.size() << std::endl;
@@ -345,7 +350,7 @@ std::vector<ARB> ACBVectorComp(
 
   ARB maxrel(0, prec), maxabs(0, prec), rmsrel(0, prec), rmsabs(0, prec);
 
-  for (int i = 0; i < a.size(); i++) {
+  for (std::size_t i = 0; i < a.size(); i++) {
     // std::cout << "A:" << a[i] << "b:" << b[i] << " ";
     auto temp1 = a[i] - b[i];
     auto temp2 = temp1.abs();
@@ -388,14 +393,14 @@ public:
         rootapprox(depth) {}
 
   std::vector<ACB> solve(void) {
-    std::random_device
-        rd; // TODO make this a static object and only have one generator
+    std::random_device rd; // TODO(orebas) make this a static object and only
+                           // have one generator
     std::mt19937 mt(rd());
     std::uniform_real_distribution<double> dist(-1.0, 1.0);
     std::vector<ACB> roots;
-    // TODO test strip initial zeros
-    // TODO make monic
-    // TODO replace x^n by x if you can (i.e. even polynomials)
+    // TODO(orebas) test strip initial zeros
+    // TODO(orebas) make monic
+    // TODO(orebas) replace x^n by x if you can (i.e. even polynomials)
 
     slong stripped_zeros = acb_poly_valuation(poly.pol);
     if (stripped_zeros > 0) {
@@ -404,7 +409,7 @@ public:
       }
       acb_poly_shift_right(poly.pol, poly.pol, stripped_zeros);
     }
-    auto maxRad = RRE.maxRadius(depth); // TODO 20 is a magic number
+    auto maxRad = RRE.maxRadius(depth); // TODO(orebas) 20 is a magic number
     auto xrand = dist(rd);
     auto yrand = dist(rd);
     std::cout << xrand << yrand;
@@ -423,6 +428,94 @@ public:
     for (auto i : rootapprox.back()) {
       roots.push_back(i);
     }
+
+    return roots;
+  }
+};
+
+class SimpleNewtonSolver {
+  std::random_device rd; //
+  std::mt19937 mt;
+  std::uniform_real_distribution<double> dist;
+
+public:
+  SimpleNewtonSolver() : mt(rd()), dist(-1.0, 1.0) {}
+
+  std::vector<ACB> solve(ComplexPoly &poly, slong prec) {
+    assert(prec > 20);
+    const slong n = poly.degree();
+    RecursiveRadiiEstimator RRE(poly);
+    auto maxRad = ACB(RRE.maxRadius(10)); // TODO(orebas) MAGIC NUMBER
+    // std::cout << "Radius estimate is: ";
+    // maxRad.print();
+    // std::cout << std::endl;
+
+    // mag_t fujibound;
+    // mag_init(fujibound);
+    // acb_poly_root_bound_fujiwara(fujibound, poly.pol);
+    // ARB fbound(0, prec);
+    // arb_set_interval_mag(fbound.r, fujibound, fujibound, prec);
+    // auto xrand = dist(rd);
+    // auto yrand = dist(rd);
+    // ACB randomcenter = ACB(fbound) * ACB(xrand, yrand, poly.intprec);
+    std::vector<ACB> roots;
+    ACB pval = (ACB(0, 0, prec));
+    ACB pprimeval = pval;
+    ACB newpval = pval;
+    ACB x = pval;
+    ACB tempsum = x;
+    ACB one(1, 0, prec);
+    ACB eps(1, 0, prec);
+    ACB sqeps(1, 0, prec);
+    ACB dir(0, 0, prec);
+    ACB dir2(0, 0, prec);
+    acb_mul_2exp_si(eps.c, one.c, -prec);
+    acb_mul_2exp_si(sqeps.c, one.c, -((prec / 2) + 1)); // integer division
+    ACB twoeps(eps);
+    twoeps *= ACB(2, 0, prec);
+    acb_one(one.c);
+    for (slong k = 0; k < n; k++) {
+      x = maxRad * ACB(dist(rd), dist(rd), poly.intprec); // random start!
+
+      for (slong i = 0; i < (n * 2) + 100; i++) {
+        // we do maximum n*2+50 iterations, but
+        // break earlier if we need to.
+        acb_poly_evaluate2(pval.c, pprimeval.c, poly.pol, x.c, prec);
+        if (pval.abs() < (eps * twoeps).abs()) {
+          break;
+        }
+        if (pprimeval.abs() < sqeps.abs()) {
+          acb_sgn(pprimeval.c, pprimeval.c, prec);
+        }
+        if (pprimeval.abs() < eps.abs()) {
+          pprimeval = sqeps * ACB(dist(rd), dist(rd), poly.intprec); // random?
+        }
+        dir = pval / pprimeval;
+
+        acb_zero(tempsum.c);
+        for (std::size_t j = 0; j < roots.size(); j++) {
+          if ((x - roots[j]).abs() > sqeps.abs()) {
+            tempsum += one / (x - roots[j]);
+          }
+        }
+        dir2 = dir * (one / (one - (dir * tempsum)));
+        x -= dir2;
+        acb_get_mid(x.c, x.c);
+      }
+      acb_poly_evaluate(newpval.c, poly.pol, x.c, prec);
+      if (newpval.abs() < pval.abs()) {
+        roots.push_back(x);
+      } else {
+        roots.push_back(x + dir2);
+      }
+    }
+    //  mag_clear(fujibound);
+    sortRootVector(roots);
+    // for (slong k = 0; k < roots.size(); k++) {
+    //   roots[k].print(20);
+    //   std::cout << std::endl;
+    // }
+    // std::cout << std::endl;
 
     return roots;
   }

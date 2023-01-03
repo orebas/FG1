@@ -17,21 +17,22 @@
 #include "arb_fmpz_poly.h"
 #include "flint/arith.h"
 #include "flint/profiler.h"
+#include "tabulate.hxx"
 
 #define _MPS_PRIVATE
+#include <cstring>
 #include <mps/mps.h>
-#include <string.h>
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#define MPSOLVE_GETOPT_STRING "a:G:D:d::t:o:O:j:S:O:i:vl:bp:rs:c"
+constexpr auto MPSOLVE_GETOPT_STRING = "a:G:D:d::t:o:O:j:S:O:i:vl:bp:rs:c";
 
 #ifndef __WINDOWS
-#include <signal.h>
+#include <csignal>
 
-void status(int signal, mps_context *s);
+void status(int signal, mps_context *mps_c);
 
 #undef _MPS_PRIVATE
 #endif
@@ -40,7 +41,7 @@ void status(int signal, mps_context *s);
 // #include "Hungarian.h"
 //  void * cleanup_context(mps_context *ctx, void *user_data);
 
-void timeSolvers(std::vector<ComplexPoly>);
+void timeSolvers(std::vector<ComplexPoly> pvec);
 
 int main(int argc, char **argv) {
   // mpfr_set_default_prec(3000);
@@ -83,9 +84,15 @@ int main(int argc, char **argv) {
   // end swap debugging
   std::vector<ComplexPoly> pvec;
   std::vector<int> dvec;
-  for (int i = 1; i <= 15; i++) {
+  const int mindegree = 5;
+  const int maxdegree = 40;
+  const int inputprecision = 512;
+  for (int i = 1; i <= maxdegree; i++) {
     dvec.push_back(i);
-    pvec.push_back(polyFromRoots<int>(dvec, 512)); // TODO MAGIC NUMBER
+    if (i >= mindegree) {
+      pvec.push_back(polyFromRoots<int>(
+          dvec, inputprecision)); // TODO(orebas) MAGIC NUMBER
+    }
   }
 
   timeSolvers(pvec);
@@ -102,57 +109,100 @@ int main(int argc, char **argv) {
   }
 }
 
-class Solver { // TODO add RAII make a real class
+class Solver { // TODO(orebas) add RAII make a real class
 public:
   std::string name;
-  std::function<std::vector<ACB>(const ComplexPoly &)> solver;
+  std::function<std::vector<ACB>(ComplexPoly &)> solver;
 };
 
 void timeSolvers(std::vector<ComplexPoly> pvec) {
-  const slong prec = 512; // TODO make this a parameter, for each poly.
+  SimpleNewtonSolver sns;
+  const slong prec = 512; // TODO(orebas) make this a parameter, for each poly.
   Solver mpsolve;
   mpsolve.name = "MPSolve";
-  mpsolve.solver = [](const ComplexPoly &p) -> std::vector<ACB> {
-    return p.MPSolve(prec);
+  mpsolve.solver = [](const ComplexPoly &poly) -> std::vector<ACB> {
+    return poly.MPSolve(prec);
+  };
+
+  Solver arblibsolve;
+  arblibsolve.name = "ArbLib";
+  arblibsolve.solver = [](const ComplexPoly &poly) -> std::vector<ACB> {
+    return poly.ArbLibSolve(prec);
+  };
+  Solver simplenewton;
+  simplenewton.name = "Simple Newton";
+  simplenewton.solver =
+      [&sns](ComplexPoly &poly) -> std::vector<ACB> { // try to const this later
+    return sns.solve(poly, prec);
   };
   std::vector<Solver> solvers;
   solvers.push_back(mpsolve);
+  solvers.push_back(arblibsolve);
+  solvers.push_back(simplenewton);
   Array3d<double> timings(pvec.size(), solvers.size(), 1);
-  std::vector<ACB> results[pvec.size()][solvers.size()];
-  for (slong i = 0; i < pvec.size(); i++) {
-    for (slong j = 0; j < solvers.size(); j++) {
-      results[i][j] = solvers[j].solver(pvec[i]);
+  Array3d<std::vector<ACB>> results(pvec.size(), solvers.size(), 1,
+                                    std::vector<ACB>());
+  // std::vector<ACB> results[pvec.size()][solvers.size()];
+  for (std::size_t i = 0; i < pvec.size(); i++) {
+    for (std::size_t j = 0; j < solvers.size(); j++) {
+      results(i, j, 0) = solvers[j].solver(pvec[i]);
       timings(i, j, 0) = measure<std::chrono::milliseconds>::execution(
           solvers[j].solver, pvec[i]);
     }
   }
+  Array3d<ARB> resultsdiff(pvec.size(), solvers.size(), 1, ARB(0, prec));
+  for (std::size_t i = 0; i < pvec.size(); i++) {
+    for (std::size_t j = 0; j < solvers.size(); j++) {
+      resultsdiff(i, j, 0) = L2Norm(results(i, j, 0), results(i, 0, 0), prec);
+    }
+  }
+  using namespace tabulate;
+  Table output_table;
+  const int digits = 20;
+  for (std::size_t i = 0; i < pvec.size(); i++) {
+    output_table.add_row({
+        std::to_string(i),
+        solvers[0].name,
+        std::to_string(timings(i, 0, 0)),
+        arb_get_str(resultsdiff(i, 0, 0).r, digits, ARB_STR_NO_RADIUS),
+        solvers[1].name,
+        std::to_string(timings(i, 1, 0)),
+        arb_get_str(resultsdiff(i, 1, 0).r, digits, ARB_STR_NO_RADIUS),
+        solvers[2].name,
+        std::to_string(timings(i, 2, 0)),
+        arb_get_str(resultsdiff(i, 2, 0).r, digits, ARB_STR_NO_RADIUS),
+
+    });
+  }
+  std::cout << output_table << std::endl;
 }
 
 void *cleanup_context(mpscp ctx, void *user_data, mps_polynomial *poly,
-                      mpscp &s, bool outp) {
+                      mpscp &s_to_zero, bool outp) {
   /* Check for errors */
   if (mps_context_has_errors(ctx)) {
     mps_print_errors(ctx);
-    return NULL;
+    return nullptr;
   }
 
   /* Output the roots */
-  if (outp) {
+  if (!outp) {
     mps_output(ctx);
   }
   /* Free used data */
-  if (poly)
+  if (poly != nullptr) {
     mps_polynomial_free(ctx, poly);
+  }
   mps_context_free(ctx);
 
-  s = NULL;
+  s_to_zero = nullptr;
 
-  return NULL;
+  return nullptr;
 }
 
 void parsePol(const std::string &polfilename) {
-  mps_context *local_s = NULL;
-  mps_polynomial *local_poly = NULL;
+  mps_context *local_s = nullptr;
+  mps_polynomial *local_poly = nullptr;
 
   /* Create a new status */
   local_s = mps_context_new();
@@ -165,19 +215,19 @@ void parsePol(const std::string &polfilename) {
   /* Leave this value to -1 if not precision has been enforced
    * by the user. Otherwise, override the polynomial input
    * precision. */
-  long int input_precision = -1;
-  char *inline_poly = NULL;
+  slong input_precision = -1;
+  char *inline_poly = nullptr;
 
-  FILE *infile;
+  FILE *infile = nullptr;
 
   /* Parse options */
-  // mps_opt *opt = NULL; //commented out but we might need it later
+  // mps_opt *opt = nullptr; //commented out but we might need it later
   mps_phase phase = no_phase;
 
   /* This will be true if the user has explicitely selected the algorithm,
      otherwise we will be using our own heuristic. */
   mps_boolean explicit_algorithm_selection = false;
-  // opt = NULL;
+  // opt = nullptr;
   /* we could set a logfile with the following code:
  {
               FILE *logstr = fopen(opt->optvalue, "w");
@@ -186,10 +236,10 @@ void parsePol(const std::string &polfilename) {
               mps_context_set_log_stream(s, logstr);
           }
    */
-  // we could set output format with mps_context_set_output_format //see main()
-  // for examples
-  infile = fopen(polfilename.c_str(), "r");
-  if (!infile) {
+  // we could set output format with mps_context_set_output_format //see
+  // main() for examples
+  infile = fopen(polfilename.c_str(), "re");
+  if (infile == nullptr) {
     mps_error(local_s, "Cannot open input file for read, aborting.");
     mps_print_errors(local_s);
     return; // EXIT_FAILURE;
@@ -199,24 +249,25 @@ void parsePol(const std::string &polfilename) {
    * allocate also a secular equation to be used in regeneration */
   local_poly = mps_parse_stream(local_s, infile);
 
-  if (!local_poly) {
+  if (local_poly == nullptr) {
     mps_error(local_s, "Error while parsing the polynomial, aborting.");
     mps_print_errors(local_s);
     return; // EXIT_FAILURE;
-  } else
+  } else {
     mps_context_set_input_poly(local_s, local_poly);
+  }
   /*local_s->active_poly = local_poly;
   std::cout << local_s << std::endl;
   std::cout << local_s->active_poly << std::endl;
   std::cout << local_poly << std::endl;
 */
   /* Override input precision if needed */
-  if (input_precision >= 0)
+  if (input_precision >= 0) {
     mps_polynomial_set_input_prec(local_s, local_poly,
-                                  2000); // TODO MAGIC NUMBER
-
-  /* Perform some heuristic for the algorithm selection, but only if the user
-   * hasn't explicitely selected one. */
+                                  2000); // TODO(orebas) MAGIC NUMBER
+  }
+  /* Perform some heuristic for the algorithm selection, but only if the
+   * user hasn't explicitely selected one. */
   if (!explicit_algorithm_selection) {
     mps_context_select_algorithm(local_s,
                                  (MPS_IS_MONOMIAL_POLY(local_poly) &&
@@ -226,8 +277,9 @@ void parsePol(const std::string &polfilename) {
   }
 
   /* Close the file if it's not stdin */
-  if (!inline_poly)
-    fclose(infile);
+  if (inline_poly == nullptr) {
+    (void)fclose(infile);
+  }
 
   /* Select the starting phase according to user input */
   mps_context_set_starting_phase(local_s, phase);
@@ -294,8 +346,8 @@ void parsePol(const std::string &polfilename) {
       flint_printf("%wd roots with multiplicity %wd\n", deg, fac->exp[i]);
       roots = _acb_vec_init(deg);
 
-      arb_fmpz_poly_complex_roots(roots, fac->p + i, flags, compd * 3.32193 +
-  2);
+      arb_fmpz_poly_complex_roots(roots, fac->p + i, flags, compd * 3.32193
+  + 2);
 
       if (printd) {
           for (j = 0; j < deg; j++) {
@@ -319,40 +371,38 @@ void parsePol(const std::string &polfilename) {
 }
 
 void temp_print(mps_context *local_s, mps_polynomial *poly) {
-  int i;
   // mps_monomial_poly *p = MPS_MONOMIAL_POLY(poly);
-  mps_monomial_poly *p = (mps_monomial_poly *)poly;
+  mps_monomial_poly *mon_poly = reinterpret_cast<mps_monomial_poly *>(poly);
 
   std::cout << poly->degree << std::endl;
-  fflush(stdout);
-
-  for (i = 0; i <= poly->degree; i++) {
-    rdpe_out(p->dap[i]);
-    std::cout << p->fap[i] << std::endl;
-    std::cout << p->fpr[i] << std::endl;
-    cplx_out(p->fpc[i]);
-    rdpe_out(p->dpr[i]);
-    cdpe_out(p->dpc[i]);
-    mpf_out_str(stdout, 10, 0, p->mfpr[i]);
-    mpc_out_str(stdout, 10, 0, p->mfpc[i]);
+  (void)fflush(stdout);
+  const int digits = 10;
+  for (int i = 0; i <= poly->degree; i++) {
+    rdpe_out(mon_poly->dap[i]);
+    std::cout << mon_poly->fap[i] << std::endl;
+    std::cout << mon_poly->fpr[i] << std::endl;
+    cplx_out(mon_poly->fpc[i]);
+    rdpe_out(mon_poly->dpr[i]);
+    cdpe_out(mon_poly->dpc[i]);
+    mpf_out_str(stdout, digits, 0, mon_poly->mfpr[i]);
+    mpc_out_str(stdout, digits, 0, mon_poly->mfpc[i]);
 
     if (i < poly->degree) {
-      mpc_out_str(stdout, 10, 0, p->mfppc[i]);
+      mpc_out_str(stdout, digits, 0, mon_poly->mfppc[i]);
     }
-    mpq_out_str(stdout, 10, p->initial_mqp_r[i]);
-    mpq_out_str(stdout, 10, p->initial_mqp_i[i]);
-    std::cout << p->spar[i] << std::endl;
+    mpq_out_str(stdout, digits, mon_poly->initial_mqp_r[i]);
+    mpq_out_str(stdout, digits, mon_poly->initial_mqp_i[i]);
+    std::cout << mon_poly->spar[i] << std::endl;
   }
 }
 
-std::vector<ACB> powersums(slong depth, slong k, slong prec) {
+std::vector<ACB> powersums(slong depth, slong max_k, slong prec) {
   std::vector<ACB> results;
-  int i, d;
-  for (d = 0; d < depth + 1; d++) {
+  for (int d = 0; d < depth + 1; d++) {
     ACB temp(0, 0, prec);
 
-    for (i = 1; i <= k; i++) {
-      temp += (ACB((int)i, (int)0, prec)).power(d);
+    for (int i = 1; i <= max_k; i++) {
+      temp += (ACB(i, 0, prec)).power(d);
     }
     results.push_back(temp);
   }
@@ -364,17 +414,19 @@ void solveCompare(mps_context *local_s, mps_polynomial *poly_local_poly,
       MPS_POLYNOMIAL_CAST(mps_monomial_poly, poly_local_poly);
 
   std::cout << "Starting " << polfilename << std::endl;
-  mps_context_set_output_prec(local_s, 512);
+  const int desired_prec = 512;
+  mps_context_set_output_prec(local_s, desired_prec);
   mps_context_set_output_goal(local_s, MPS_OUTPUT_GOAL_APPROXIMATE);
   /* Solve the polynomial */
   auto funcMPS = [&]() -> void { mps_mpsolve(local_s); };
 
-  slong prec = 2000; // TODO MAGIC NUMBER
+  slong prec = 2000; // TODO(orebas) MAGIC NUMBER
   ComplexPoly acb_style_poly = ComplexPoly(local_s, local_poly, prec);
   std::cout << std::endl;
-  std::vector<ComplexPoly> pvec, qvec;
+  std::vector<ComplexPoly> pvec;
+  std::vector<ComplexPoly> qvec;
   // DLGFG(acb_style_poly, pvec, qvec, 90);
-  int depth = 20;
+  const int depth = 20;
   // FGSolver FGS(acb_style_poly, depth);
   // FGS.generatePnQnPolynomials();
   /*std::cout << "PVEC:";
@@ -424,21 +476,21 @@ void solveCompare(mps_context *local_s, mps_polynomial *poly_local_poly,
 
       std::cout << depth << "[minRoot]" << RRE.maxRoot(depth);
   }*/
-  // uses recursive FG and DLG to estimate largest and smallest roots, and root
-  // radii
+  // uses recursive FG and DLG to estimate largest and smallest roots, and
+  // root radii
 
   double mpsTime =
       measure<std::chrono::milliseconds>::execution(funcMPS); // runs mpsolve
   double RS1Time =
       measure<std::chrono::milliseconds>::execution(funcRS1); // runs mpsolve
 
-  fflush(stdout);
-  mpc_t *results = NULL;
+  (void)fflush(stdout);
+  mpc_t *results = nullptr;
   // std::cout << "MPS SOLVE" << std::endl;
-  mps_context_get_roots_m(local_s, &results, NULL);
+  mps_context_get_roots_m(local_s, &results, nullptr);
   std::vector<ACB> mps_roots;
   for (slong rt = 0; rt < acb_style_poly.degree(); rt++) {
-    mps_roots.push_back(ACB(results[rt], prec));
+    mps_roots.emplace_back(ACB(results[rt], prec));
   }
 
   // std::cout << "MPS SOLVE1" << std::endl;
@@ -449,20 +501,20 @@ void solveCompare(mps_context *local_s, mps_polynomial *poly_local_poly,
       // ARF r = b.abs_ubound_arf();
       // int i = arf_cmp(l.f, r.f);
       // return i < 0;
-      if (arb_lt(a.abs().r, b.abs().r)) {
+      if (arb_lt(a.abs().r, b.abs().r)!=0) {
         return true;
       }
-      if (arb_gt(a.abs().r, b.abs().r)) {
+      if (arb_gt(a.abs().r, b.abs().r) != 0) {
         return false;
       }
       ARB arg1(0.0, a.intprec);
       ARB arg2(0.0, b.intprec);
       acb_arg(arg1.r, a.c, a.intprec);
       acb_arg(arg2.r, b.c, a.intprec);
-      if (arb_lt(arg1.r, arg2.r)) {
+      if (arb_lt(arg1.r, arg2.r) != 0) {
         return true;
       }
-      if (arb_gt(arg1.r, arg2.r)) {
+      if (arb_gt(arg1.r, arg2.r) != 0) {
         return false;
       }
       return false;
@@ -513,7 +565,8 @@ void solveCompare(mps_context *local_s, mps_polynomial *poly_local_poly,
   /*  COMMENTED OUT HUNGARIAN ALGORITHM
   for (int i = 0; i < matsize; i++) {
       for (int j = 0; j < matsize; j++) {
-          costMatrix[i].push_back((mps_roots[i] - RootSolver1Roots[j]).abs());
+          costMatrix[i].push_back((mps_roots[i] -
+  RootSolver1Roots[j]).abs());
       }
   }
   std::vector<int> assignment;
@@ -558,13 +611,13 @@ void solveCompare(mps_context *local_s, mps_polynomial *poly_local_poly,
 
   std::cout << rootapprox.back().size() << std::endl;
 
-  for (int ri = 1; ri < rootapprox.size(); ri++) {
+  for (std::size_t ri = 1; ri < rootapprox.size(); ri++) {
     std::sort(rootapprox[ri].begin(), rootapprox[ri].end(), customLessLex);
     std::cout << "\nRow " << ri << " "
               << ACBVectorComp(mps_roots, rootapprox[ri]);
   }
   mpc_vfree(results);
-  cleanup_context(local_s, NULL, MPS_POLYNOMIAL(local_poly), local_s, false);
+  cleanup_context(local_s, nullptr, MPS_POLYNOMIAL(local_poly), local_s, false);
 }
 
 void solveDebug(mps_context *local_s, mps_polynomial *poly_local_poly,
@@ -577,7 +630,7 @@ void solveDebug(mps_context *local_s, mps_polynomial *poly_local_poly,
   // ComplexPoly new_poly;
   //  auto parsed_poly = ComplexPoly::from_mps_poly(mps_polynomial *
   //  local_poly);
-  slong prec = 2000; // TODO MAGIC NUMBER
+  slong prec = 2000; // TODO(orebas) MAGIC NUMBER
   ComplexPoly acb_style_poly = ComplexPoly(local_s, local_poly, prec);
   std::vector<ComplexPoly> pvec, qvec;
   // DLGFG(acb_style_poly, pvec, qvec, 90);
@@ -614,9 +667,9 @@ void solveDebug(mps_context *local_s, mps_polynomial *poly_local_poly,
   }
 
   double initTime = measure<std::chrono::milliseconds>::execution(func);
-  fflush(stdout);
+  (void)fflush(stdout);
   std::cout << polfilename << " took " << initTime << "ms." << std::endl;
-  cleanup_context(local_s, NULL, MPS_POLYNOMIAL(local_poly), local_s, false);
+  cleanup_context(local_s, nullptr, MPS_POLYNOMIAL(local_poly), local_s, false);
 }
 
 class integrand_parameters {
@@ -625,26 +678,26 @@ public:
   ARB r;
   slong xpower;
   integrand_parameters(const ComplexPoly &initpol, ARB radius, slong pow)
-      : p(initpol.intprec), r(0, radius.intprec) {
+      : p(initpol.intprec), r(0, radius.intprec), xpower(pow) {
     p.explicitCopy(initpol);
     arb_set(r.r, radius.r);
-    xpower = pow;
   }
 };
 
 int pprime_over_p_integrand(acb_ptr out, const acb_t inp, void *paramsv,
                             slong order, slong prec) {
-  // this is the integrand to evaluate integral p'/p, order-th derivative.  inp
-  // goes from 0 to 1.
+  // this is the integrand to evaluate integral p'/p, order-th derivative.
+  // inp goes from 0 to 1.
 
   ACB a(0, 0, prec), b(0, 0, prec), z(0, 0, prec);
   ACB inp_copy(0, 0, prec);
   integrand_parameters *params =
       reinterpret_cast<integrand_parameters *>(paramsv);
   acb_set(inp_copy.c, inp);
-  acb_mul_2exp_si(inp_copy.c, inp_copy.c, 1);      // inp *=2;
-  acb_exp_pi_i(z.c, inp_copy.c, inp_copy.intprec); // z = exp(2 * pi *i * inp)
-  acb_mul_arb(z.c, z.c, params->r.r, z.intprec);   // z = r e ^(2 * pi * inp);
+  acb_mul_2exp_si(inp_copy.c, inp_copy.c, 1); // inp *=2;
+  acb_exp_pi_i(z.c, inp_copy.c,
+               inp_copy.intprec);                // z = exp(2 * pi *i * inp)
+  acb_mul_arb(z.c, z.c, params->r.r, z.intprec); // z = r e ^(2 * pi * inp);
 
   acb_poly_evaluate2(a.c, b.c, params->p.pol, z.c, params->p.intprec);
   acb_div(out, b.c, a.c, b.intprec); // out = p'/p at re^(2 pi i inp)
@@ -654,34 +707,33 @@ int pprime_over_p_integrand(acb_ptr out, const acb_t inp, void *paramsv,
   return 0;
 }
 
-// below approximates first depth derivatives of pprime/p via cauchy integral
-// formula
+// below approximates first depth derivatives of pprime/p via cauchy
+// integral formula
 void DerivEst(std::vector<ACB> &results, const ComplexPoly &p, ARB minrad,
-              int depth) {
+              std::size_t depth) {
   mag_t tol;
-  slong prec, goal;
   acb_calc_integrate_opt_t options;
 
   acb_calc_integrate_opt_init(options);
 
-  prec = p.intprec; // p.intprec;
-  goal = prec;
+  slong prec = p.intprec; // p.intprec;
+  slong goal = prec;
   mag_init(tol);
   mag_set_ui_2exp_si(tol, 1, -prec);
 
-  long k = 0;
   ACB deriv_est(0, 0, prec);
   results.resize(depth + 1, ACB(0, 0, prec));
-  integrand_parameters params(p, minrad, k);
-  ACB start(0, 0, prec), end(1, 0, prec);
+  integrand_parameters params(p, minrad, 0);
+  ACB start(0, 0, prec);
+  ACB end(1, 0, prec);
   auto func(&pprime_over_p_integrand);
-  for (; k <= depth; k++) {
+  for (std::size_t k = 0; k <= depth; k++) {
     params.xpower = k;
     acb_calc_integrate(deriv_est.c, func, &params, start.c, end.c, goal, tol,
                        options, prec);
-    fmpz_t t;
-    fmpz_fac_ui(t, k);
-    acb_mul_fmpz(deriv_est.c, deriv_est.c, t, deriv_est.intprec);
+    fmpz_t fact;
+    fmpz_fac_ui(fact, k);
+    acb_mul_fmpz(deriv_est.c, deriv_est.c, fact, deriv_est.intprec);
     results[k].explicitCopy(deriv_est);
   }
 }

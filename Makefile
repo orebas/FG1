@@ -1,3 +1,5 @@
+#pragma once
+
 #removed below dependency:
 #/usr/lib64/libboost_timer.so
 #took out OpenMP for now, add back later -fopenmp
@@ -13,8 +15,16 @@ benchmark: benchmark.cpp benchmark.hpp arbxx.hpp
 	$(CPP) $(CFLAGS) -I./MPSolve/include -L ./MPSolve/libmps -ggdb     -O0 benchmark.cpp   -o benchmark $(LIBS) -lmps
 
 benchmark-fast: benchmark.cpp benchmark.hpp arbxx.hpp
-	$(CPP) $(CFLAGS) -I./MPSolve/include    -O3 -march=native benchmark.cpp   -o benchmark-fast $(LIBS)
+	$(CPP) $(CFLAGS) -I./MPSolve/include  -L ./MPSolve/libmps  -O3 -march=native benchmark.cpp   -o benchmark-fast $(LIBS) -lmps
 
+benchmark-clang:benchmark.cpp benchmark.hpp arbxx.hpp
+	clang $(CFLAGS) -Wno-register -I./MPSolve/include -L ./MPSolve/libmps -ggdb     -O0 benchmark.cpp   -o benchmark-clang $(LIBS) -lmps  -lstdc++ -lm -ldl
+
+benchmark-prof: benchmark.cpp benchmark.hpp arbxx.hpp
+	$(CPP) $(CFLAGS) -I./MPSolve/include  -L ./MPSolve/libmps -g -pg  -O3 -march=native benchmark.cpp   -o benchmark-prof $(LIBS) -lmps
+
+benchmark-lint: benchmark.cpp benchmark.hpp arbxx.hpp
+	clang-tidy  -header-filter=.*.hpp --checks=*,-bugprone-easily-swappable-parameters,-llvmlibc-*,-readability-identifier-length,-fuchsia-overloaded-operator,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-modernize-use-trailing-return-type,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-hicpp-no-array-decay,-altera-unroll-loops,-fuchsia-default-arguments-calls benchmark.cpp   -- -I. -I./MPSolve/include  --std=c++2a -Wno-register    
 
 #-fsanitize=undefined -fno-sanitize-recover=all -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fno-sanitize=null -fno-sanitize=alignment 
 benchmark-asan: benchmark.cpp benchmark.hpp arbxx.hpp

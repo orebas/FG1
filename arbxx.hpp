@@ -1,4 +1,4 @@
-
+#pragma once
 
 #include "acb_calc.h"
 #include "acb_poly.h"
@@ -6,62 +6,74 @@
 #include <cassert>
 template <class T = double> class Array3d {
 private:
-  int w;
-  int h;
-  int d;
+  std::size_t w;
+  std::size_t h;
+  std::size_t d;
 
 public:
   std::vector<T> data;
 
-  Array3d(int width, int height, int depth)
+  Array3d(std::size_t width, std::size_t height, std::size_t depth)
       : w(width), h(height), d(depth), data(w * h * d, 0) {}
 
-  inline T &at(int x, int y, int z) { return data[x * h * d + y * d + z]; }
+  Array3d(std::size_t width, std::size_t height, std::size_t depth,
+          const T &initializer)
+      : w(width), h(height), d(depth), data(w * h * d, initializer) {}
 
-  inline T at(int x, int y, int z) const { return data[x * h * d + y * d + z]; }
-
-  inline T &operator()(int x, int y, int z) {
+  inline T &at(std::size_t x, std::size_t y, std::size_t z) {
     return data[x * h * d + y * d + z];
   }
 
-  inline T operator()(int x, int y, int z) const {
+  inline T at(std::size_t x, std::size_t y, std::size_t z) const {
     return data[x * h * d + y * d + z];
   }
-  inline int width() { return w; }
-  inline int height() { return h; }
-  inline int depth() { return d; }
+
+  inline T &operator()(std::size_t x, std::size_t y, std::size_t z) {
+    return data[x * h * d + y * d + z];
+  }
+
+  inline T operator()(std::size_t x, std::size_t y, std::size_t z) const {
+    return data[x * h * d + y * d + z];
+  }
+  inline std::size_t width() { return w; }
+  inline std::size_t height() { return h; }
+  inline std::size_t depth() { return d; }
 };
 
 template <class T = double> class Array4d {
 private:
-  int w;
-  int h;
-  int d;
-  int l;
+  std::size_t w;
+  std::size_t h;
+  std::size_t d;
+  std::size_t l;
 
 public:
   std::vector<T> data;
 
-  Array4d(int r, int s, int t, int u)
+  Array4d(std::size_t r, std::size_t s, std::size_t t, std::size_t u)
       : w(r), h(s), d(t), l(u), data(w * h * d * l, 0) {}
 
-  inline T &at(int x, int y, int z, int t) {
+  inline T &at(std::size_t x, std::size_t y, std::size_t z, std::size_t t) {
     return data[x * h * d * l + y * d * l + z * l + t];
   }
 
-  inline T at(int x, int y, int z, int t) const {
+  inline T at(std::size_t x, std::size_t y, std::size_t z,
+              std::size_t t) const {
     return data[x * h * d * l + y * d * l + z * l + t];
   }
 
-  inline T &operator()(int x, int y, int z, int t) {
+  inline T &operator()(std::size_t x, std::size_t y, std::size_t z,
+                       std::size_t t) {
     return data[x * h * d * l + y * d * l + z * l + t];
   }
 
-  inline T operator()(int x, int y, int z, int t) const {
+  inline T operator()(std::size_t x, std::size_t y, std::size_t z,
+                      std::size_t t) const {
     return data[x * h * d * l + y * d * l + z * l + t];
   }
 
-  inline int internalRef(int x, int y, int z, int t) {
+  inline std::size_t internalRef(std::size_t x, std::size_t y, std::size_t z,
+                                 std::size_t t) {
     return x * h * d * l + y * d * l + z * l + t;
   }
 };
@@ -97,8 +109,9 @@ public:
   }
 
   ~ARF() {
-    if (intprec > 0)
+    if (intprec > 0) {
       arf_clear(f);
+    }
   }
 };
 
@@ -178,12 +191,13 @@ public:
   }
   ARB operator*(const ARB &other) { return ARB(*this) *= other; }
 
-  bool operator<(const ARB &other) { return arb_lt(this->r, other.r); }
-  bool operator>(const ARB &other) { return arb_gt(this->r, other.r); }
+  bool operator<(const ARB &other) { return (arb_lt(this->r, other.r) != 0); }
+  bool operator>(const ARB &other) { return (arb_gt(this->r, other.r) != 0); }
 
   ~ARB() {
-    if (intprec > 0)
+    if (intprec > 0) {
       arb_clear(r);
+    }
   }
   void explicitCopy(const ARB &a) {
     arb_set(r, a.r);
@@ -192,7 +206,7 @@ public:
   void print() const { arb_printd(r, 30); }
 };
 
-ARB fabs(ARB &a) {
+ARB inline fabs(ARB &a) {
   ARB result(a);
   ARB b(a);
   arb_neg(b.r, b.r);
@@ -269,14 +283,16 @@ public:
    }*/
   ACB(const mpc_t &p, slong local_prec) : intprec(local_prec) {
     acb_init(c);
-    mpfr_t mpfrre, mpfrim;
-    arf_t arfre,
-        arfim; // TODO Is this a memory leak? add init and clear, maybe.
+    mpfr_t mpfrre;
+    mpfr_t mpfrim;
+    arf_t arfre;
+    arf_t arfim;
     mpfr_init2(mpfrre, local_prec);
     mpfr_init2(mpfrim, local_prec);
     arf_init(arfre);
     arf_init(arfim);
-    ARB arbre(0, local_prec), arbim(0, local_prec);
+    ARB arbre(0, local_prec);
+    ARB arbim(0, local_prec);
     mpfr_set_f(mpfrre, (p)->r, MPFR_RNDN);
     mpfr_set_f(mpfrim, (p)->i, MPFR_RNDN);
     arf_set_mpfr(arfre, mpfrre);
@@ -358,8 +374,9 @@ public:
   }
 
   ~ACB() {
-    if (intprec > 0)
+    if (intprec > 0) {
       acb_clear(c);
+    }
   }
 
   void explicitCopy(const ACB &a) { acb_set(c, a.c); }
@@ -370,7 +387,7 @@ public:
 //     return ACB(lhs) *= rhs;
 // }
 
-void sortRootVector(std::vector<ACB> &roots) {
+void inline sortRootVector(std::vector<ACB> &roots) {
   struct {
     bool operator()(const ACB &a, const ACB &b) const {
 
@@ -385,16 +402,16 @@ void sortRootVector(std::vector<ACB> &roots) {
       acb_get_imag(im1.r, a.c);
       acb_get_imag(im2.r, b.c);
 
-      if (arb_lt(re1.r, re2.r)) {
+      if (arb_lt(re1.r, re2.r) != 0) {
         return true;
       }
-      if (arb_gt(re1.r, re2.r)) {
+      if (arb_gt(re1.r, re2.r) != 0) {
         return false;
       }
-      if (arb_lt(im1.r, im2.r)) {
+      if (arb_lt(im1.r, im2.r) != 0) {
         return true;
       }
-      if (arb_gt(im1.r, im2.r)) {
+      if (arb_gt(im1.r, im2.r) != 0) {
         return false;
       }
       return false;
@@ -413,7 +430,7 @@ public:
 
   acb_poly_ptr acb_poly_ptr_int() { return pol; }
 
-  ComplexPoly(slong ip) : intprec(ip) { acb_poly_init(pol); }
+  explicit ComplexPoly(slong ip) : intprec(ip) { acb_poly_init(pol); }
   ComplexPoly(const ComplexPoly &other) : intprec(other.intprec) {
     acb_poly_init(pol);
     acb_poly_set(pol, other.pol);
@@ -437,7 +454,8 @@ public:
     acb_poly_compose(result.pol, this->pol, polarg.pol, intprec);
     return result;
   }
-  ComplexPoly(mps_context *s, mps_monomial_poly *p, slong wp) : intprec(wp) {
+  ComplexPoly(mps_context *s, mps_monomial_poly *p, std::size_t wp)
+      : intprec(wp) {
     acb_poly_init(pol);
     // int i;
     // rdpe_t apol, ax
@@ -464,18 +482,18 @@ public:
     /* Set 4 * machine precision in u */
     rdpe_set_2dl(u, 1.0, 2 - wp);
 
-    int j;
-
     /*    if (MPS_DENSITY_IS_SPARSE(s->active_poly->density)) {  //this line
     fails if enabled? temp_print_sparse(s, p);
         }
     else*/
-    slong local_prec =
+    std::size_t local_prec =
         std::max(mpf_get_prec(p->mfpc[0]->r), mpf_get_prec(p->mfpc[0]->i));
     local_prec = std::max(local_prec, wp);
     mpfr_set_default_prec(local_prec);
-    mpfr_t mpfrre, mpfrim;
-    arf_t arfre, arfim;
+    mpfr_t mpfrre;
+    mpfr_t mpfrim;
+    arf_t arfre;
+    arf_t arfim;
     mpfr_init2(mpfrre, local_prec);
     mpfr_init2(mpfrim, local_prec);
     arf_init(arfre);
@@ -485,7 +503,7 @@ public:
 
     acb_poly_fit_length(pol, MPS_POLYNOMIAL(p)->degree + 1);
 
-    for (j = 0; j <= MPS_POLYNOMIAL(p)->degree; j++) {
+    for (int j = 0; j <= MPS_POLYNOMIAL(p)->degree; j++) {
       mpfr_set_f(mpfrre, (p->mfpc[j])->r, MPFR_RNDN);
       mpfr_set_f(mpfrim, (p->mfpc[j])->i, MPFR_RNDN);
       arf_set_mpfr(arfre, mpfrre);
@@ -529,7 +547,7 @@ public:
     acb_poly_set_coeff_si(temp, 1, -1);
     acb_poly_set_coeff_acb(temp, 0, c.c);
     acb_poly_neg(temp, temp);
-    if (acb_poly_is_zero(pol)) {
+    if (acb_poly_is_zero(pol) != 0) {
       acb_poly_set(pol, temp);
     } else {
       acb_poly_mul(pol, pol, temp, intprec);
@@ -552,11 +570,11 @@ public:
   }
   void unsquare() { // replaces even exponents x^(2n) with x^n, throws out odd
                     // exponents
-    slong len, deg;
-    len = acb_poly_length(pol);
-    if (len == 0)
+    slong len = acb_poly_length(pol);
+    if (len == 0) {
       return;
-    deg = len - 1;
+    }
+    slong deg = len - 1;
     assert((deg) % 2 == 0);
     ACB tcoeff(0, 0, intprec);
     for (slong i = 0; i <= deg; i += 2) {
@@ -580,12 +598,14 @@ public:
     ACB coeff = this->getCoeff(k);
     auto rearf = arb_midref(acb_realref(coeff.c));
     auto imarf = arb_midref(acb_imagref(coeff.c));
-    mpfr_t rempfr, immpfr;
+    mpfr_t rempfr;
+    mpfr_t immpfr;
     mpfr_init2(rempfr, prec);
     mpfr_init2(immpfr, prec);
     arf_get_mpfr(rempfr, rearf, MPFR_RNDN);
     arf_get_mpfr(immpfr, imarf, MPFR_RNDN);
-    mpf_t regmp, imgmp;
+    mpf_t regmp;
+    mpf_t imgmp;
     mpf_init2(regmp, prec);
     mpf_init2(imgmp, prec);
     mpfr_get_f(regmp, rempfr, MPFR_RNDN);
@@ -622,7 +642,7 @@ public:
   }
   ComplexPoly operator-(const ComplexPoly &other) {
     ComplexPoly temp(*this);
-    ComplexPoly rhs(other); // TODO unecessary copy.
+    ComplexPoly rhs(other); // TODO(orebas) unecessary copy.
     acb_poly_neg(rhs.pol, rhs.pol);
     temp += rhs;
     return temp;
@@ -630,16 +650,23 @@ public:
 
   // ComplexPoly from_mps_poly(mps_polynomial *local_poly) {
   // }
-  std::vector<ACB> ArbLibSolve(slong prec) {
+  std::vector<ACB> ArbLibSolve(slong prec) const {
     acb_ptr roots;
 
     const slong n = this->degree();
-     roots = _acb_vec_init(n);
-    acb_poly_find_roots(roots.data(), pol, nullptr, 0, prec);
-    sortRootVector(roots);
-    _acb_vec_clear(roots, n);
+    roots = _acb_vec_init(n);
+    acb_poly_find_roots(roots, pol, nullptr, 0, prec);
     std::vector<ACB> newroots(n, ACB(0.0, 0.0, prec));
+    // could potentially avoid a copy here by using .data() of a vector
+    for (slong i = 0; i < n; i++) {
+      acb_set(newroots[i].c, roots + i);
+    }
+    _acb_vec_clear(roots, n);
+
+    sortRootVector(newroots);
+    return newroots;
   }
+
   std::vector<ACB> MPSolve(slong prec) const {
     slong n = this->degree();
     mps_context *status = mps_context_new();
@@ -713,8 +740,7 @@ template <class T = double>
 ComplexPoly polyFromRoots(std::vector<T> vec, slong precision) {
   auto length = vec.size();
   auto ptr = _acb_vec_init(length);
-  slong i = 0;
-  for (; i < length; i++) {
+  for (std::size_t i = 0; i < length; i++) {
     ACB cc((T)vec[i], (T)0.0, precision);
     acb_set(ptr + i, cc.c); // this is ugly.
   }
@@ -722,4 +748,18 @@ ComplexPoly polyFromRoots(std::vector<T> vec, slong precision) {
   acb_poly_product_roots(p.pol, ptr, length, precision);
   _acb_vec_clear(ptr, length);
   return p;
+}
+
+ARB inline L2Norm(std::vector<ACB> v1, std::vector<ACB> v2, slong prec) {
+  std::size_t n = v1.size();
+  assert(v2.size() == n);
+  if (n == 0) {
+    return ARB(0, prec);
+  }
+  ARB result = ARB(0.0, prec);
+  for (std::size_t i = 0; i < n; i++) {
+    ARB temp = (v1[i] - v2[i]).abs();
+    result += temp * temp;
+  }
+  return result;
 }

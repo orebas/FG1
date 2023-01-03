@@ -1,0 +1,974 @@
+clang-tidy  -header-filter=.*.hpp --checks=*,-llvmlibc-*,-readability-identifier-length,-fuchsia-overloaded-operator,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-modernize-use-trailing-return-type,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-hicpp-no-array-decay,-altera-unroll-loops,-fuchsia-default-arguments-calls benchmark.cpp   -- -I. -I./MPSolve/include  --std=c++2a -Wno-register    
+/home/orebas/FG1/./arbxx.hpp:1:1: warning: header is missing header guard [llvm-header-guard]
+#pragma once
+^
+/home/orebas/FG1/./arbxx.hpp:14:18: warning: member variable 'data' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes]
+  std::vector<T> data;
+                 ^
+/home/orebas/FG1/./arbxx.hpp:16:11: warning: 3 adjacent parameters of 'Array3d<T>' of similar type ('std::size_t') are easily swapped by mistake [bugprone-easily-swappable-parameters]
+  Array3d(std::size_t width, std::size_t height, std::size_t depth)
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/orebas/FG1/./arbxx.hpp:16:23: note: the first parameter in the range is 'width'
+  Array3d(std::size_t width, std::size_t height, std::size_t depth)
+                      ^~~~~
+/home/orebas/FG1/./arbxx.hpp:16:62: note: the last parameter in the range is 'depth'
+  Array3d(std::size_t width, std::size_t height, std::size_t depth)
+                                                             ^~~~~
+/home/orebas/FG1/./arbxx.hpp:19:11: warning: 3 adjacent parameters of 'Array3d<T>' of similar type ('std::size_t') are easily swapped by mistake [bugprone-easily-swappable-parameters]
+  Array3d(std::size_t width, std::size_t height, std::size_t depth,
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/orebas/FG1/./arbxx.hpp:19:23: note: the first parameter in the range is 'width'
+  Array3d(std::size_t width, std::size_t height, std::size_t depth,
+                      ^~~~~
+/home/orebas/FG1/./arbxx.hpp:19:62: note: the last parameter in the range is 'depth'
+  Array3d(std::size_t width, std::size_t height, std::size_t depth,
+                                                             ^~~~~
+/home/orebas/FG1/./arbxx.hpp:27:3: warning: function 'at' should be marked [[nodiscard]] [modernize-use-nodiscard]
+  inline T at(std::size_t x, std::size_t y, std::size_t z) const {
+  ^
+  [[nodiscard]] 
+/home/orebas/FG1/./arbxx.hpp:51:18: warning: member variable 'data' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes]
+  std::vector<T> data;
+                 ^
+/home/orebas/FG1/./arbxx.hpp:53:11: warning: 4 adjacent parameters of 'Array4d<T>' of similar type ('std::size_t') are easily swapped by mistake [bugprone-easily-swappable-parameters]
+  Array4d(std::size_t r, std::size_t s, std::size_t t, std::size_t u)
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/orebas/FG1/./arbxx.hpp:53:23: note: the first parameter in the range is 'r'
+  Array4d(std::size_t r, std::size_t s, std::size_t t, std::size_t u)
+                      ^
+/home/orebas/FG1/./arbxx.hpp:53:68: note: the last parameter in the range is 'u'
+  Array4d(std::size_t r, std::size_t s, std::size_t t, std::size_t u)
+                                                                   ^
+/home/orebas/FG1/./arbxx.hpp:83:9: warning: member variable 'f' has public visibility [misc-non-private-member-variables-in-classes]
+  arf_t f;
+        ^
+/home/orebas/FG1/./arbxx.hpp:84:9: warning: member variable 'intprec' has public visibility [misc-non-private-member-variables-in-classes]
+  slong intprec = 1;
+        ^
+/home/orebas/FG1/./arbxx.hpp:86:3: warning: constructor does not initialize these fields: f [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ARF(const arf_t &s, slong ip) : intprec(ip) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:91:3: warning: constructor does not initialize these fields: f [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ARF(double x, slong ip) : intprec(ip) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:91:7: warning: 2 adjacent parameters of 'ARF' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+  ARF(double x, slong ip) : intprec(ip) {
+      ^~~~~~~~~~~~~~~~~~
+/home/orebas/FG1/./arbxx.hpp:91:14: note: the first parameter in the range is 'x'
+  ARF(double x, slong ip) : intprec(ip) {
+             ^
+/home/orebas/FG1/./arbxx.hpp:91:23: note: the last parameter in the range is 'ip'
+  ARF(double x, slong ip) : intprec(ip) {
+                      ^~
+/home/orebas/FG1/./arbxx.hpp:91:7: note: 
+  ARF(double x, slong ip) : intprec(ip) {
+      ^
+/home/orebas/FG1/./arbxx.hpp:91:17: note: 'double' and 'mp_limb_signed_t' may be implicitly converted: 'double' -> 'mp_limb_signed_t' (as 'long'), 'mp_limb_signed_t' (as 'long') -> 'double'
+  ARF(double x, slong ip) : intprec(ip) {
+                ^
+/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
+#define slong mp_limb_signed_t
+              ^
+/home/orebas/FG1/./arbxx.hpp:97:3: warning: constructor does not initialize these fields: f [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ARF(ARF &&other) noexcept : intprec(other.intprec) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:120:9: warning: member variable 'r' has public visibility [misc-non-private-member-variables-in-classes]
+  arb_t r;
+        ^
+/home/orebas/FG1/./arbxx.hpp:121:9: warning: member variable 'intprec' has public visibility [misc-non-private-member-variables-in-classes]
+  slong intprec = 1;
+        ^
+/home/orebas/FG1/./arbxx.hpp:125:3: warning: constructor does not initialize these fields: r [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ARB(const arb_t &s, slong ip) : intprec(ip) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:129:3: warning: constructor does not initialize these fields: r [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ARB(double x, slong ip) : intprec(ip) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:129:7: warning: 2 adjacent parameters of 'ARB' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+  ARB(double x, slong ip) : intprec(ip) {
+      ^~~~~~~~~~~~~~~~~~
+/home/orebas/FG1/./arbxx.hpp:129:14: note: the first parameter in the range is 'x'
+  ARB(double x, slong ip) : intprec(ip) {
+             ^
+/home/orebas/FG1/./arbxx.hpp:129:23: note: the last parameter in the range is 'ip'
+  ARB(double x, slong ip) : intprec(ip) {
+                      ^~
+/home/orebas/FG1/./arbxx.hpp:129:7: note: 
+  ARB(double x, slong ip) : intprec(ip) {
+      ^
+/home/orebas/FG1/./arbxx.hpp:129:17: note: 'double' and 'mp_limb_signed_t' may be implicitly converted: 'double' -> 'mp_limb_signed_t' (as 'long'), 'mp_limb_signed_t' (as 'long') -> 'double'
+  ARB(double x, slong ip) : intprec(ip) {
+                ^
+/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
+#define slong mp_limb_signed_t
+              ^
+/home/orebas/FG1/./arbxx.hpp:133:3: warning: constructor does not initialize these fields: r [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ARB(int x, slong ip) : intprec(ip) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:133:7: warning: 2 adjacent parameters of 'ARB' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+  ARB(int x, slong ip) : intprec(ip) {
+      ^~~~~~~~~~~~~~~
+/home/orebas/FG1/./arbxx.hpp:133:11: note: the first parameter in the range is 'x'
+  ARB(int x, slong ip) : intprec(ip) {
+          ^
+/home/orebas/FG1/./arbxx.hpp:133:20: note: the last parameter in the range is 'ip'
+  ARB(int x, slong ip) : intprec(ip) {
+                   ^~
+/home/orebas/FG1/./arbxx.hpp:133:7: note: 
+  ARB(int x, slong ip) : intprec(ip) {
+      ^
+/home/orebas/FG1/./arbxx.hpp:133:14: note: 'int' and 'mp_limb_signed_t' may be implicitly converted: 'int' -> 'mp_limb_signed_t' (as 'long'), 'mp_limb_signed_t' (as 'long') -> 'int'
+  ARB(int x, slong ip) : intprec(ip) {
+             ^
+/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
+#define slong mp_limb_signed_t
+              ^
+/home/orebas/FG1/./arbxx.hpp:138:3: warning: constructor does not initialize these fields: r [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ARB(ARB &&other) noexcept : intprec(other.intprec) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:142:3: warning: constructor does not initialize these fields: r [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ARB(const arf_t arf, slong prec) : intprec(prec) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:146:3: warning: constructor does not initialize these fields: r [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ARB(const mpfr_t mpfr, slong prec) : intprec(prec) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:206:38: warning: 30 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  void print() const { arb_printd(r, 30); }
+                                     ^
+/home/orebas/FG1/./arbxx.hpp:223:9: warning: member variable 'c' has public visibility [misc-non-private-member-variables-in-classes]
+  acb_t c;
+        ^
+/home/orebas/FG1/./arbxx.hpp:224:9: warning: member variable 'intprec' has public visibility [misc-non-private-member-variables-in-classes]
+  slong intprec = 1;
+        ^
+/home/orebas/FG1/./arbxx.hpp:233:3: warning: constructor does not initialize these fields: c [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ACB(const acb_t &s, slong ip) : intprec(ip) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:237:3: warning: constructor does not initialize these fields: c [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ACB(double x, double y, slong ip) : intprec(ip) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:237:17: warning: 2 adjacent parameters of 'ACB' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+  ACB(double x, double y, slong ip) : intprec(ip) {
+                ^~~~~~~~~~~~~~~~~~
+/home/orebas/FG1/./arbxx.hpp:237:24: note: the first parameter in the range is 'y'
+  ACB(double x, double y, slong ip) : intprec(ip) {
+                       ^
+/home/orebas/FG1/./arbxx.hpp:237:33: note: the last parameter in the range is 'ip'
+  ACB(double x, double y, slong ip) : intprec(ip) {
+                                ^~
+/home/orebas/FG1/./arbxx.hpp:237:17: note: 
+  ACB(double x, double y, slong ip) : intprec(ip) {
+                ^
+/home/orebas/FG1/./arbxx.hpp:237:27: note: 'double' and 'mp_limb_signed_t' may be implicitly converted: 'double' -> 'mp_limb_signed_t' (as 'long'), 'mp_limb_signed_t' (as 'long') -> 'double'
+  ACB(double x, double y, slong ip) : intprec(ip) {
+                          ^
+/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
+#define slong mp_limb_signed_t
+              ^
+/home/orebas/FG1/./arbxx.hpp:242:3: warning: constructor does not initialize these fields: c [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ACB(const ARB &r) : intprec(r.intprec) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:242:3: warning: single-argument constructors must be marked explicit to avoid unintentional implicit conversions [google-explicit-constructor,hicpp-explicit-conversions]
+  ACB(const ARB &r) : intprec(r.intprec) {
+  ^
+  explicit 
+/home/orebas/FG1/./arbxx.hpp:247:3: warning: constructor does not initialize these fields: c [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ACB(const ARB &r, const ARB &i) : intprec(r.intprec) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:274:3: warning: constructor does not initialize these fields: c [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ACB(int a, int b, slong ip) : intprec(ip) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:274:14: warning: 2 adjacent parameters of 'ACB' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
+  ACB(int a, int b, slong ip) : intprec(ip) {
+             ^~~~~~~~~~~~~~~
+/home/orebas/FG1/./arbxx.hpp:274:18: note: the first parameter in the range is 'b'
+  ACB(int a, int b, slong ip) : intprec(ip) {
+                 ^
+/home/orebas/FG1/./arbxx.hpp:274:27: note: the last parameter in the range is 'ip'
+  ACB(int a, int b, slong ip) : intprec(ip) {
+                          ^~
+/home/orebas/FG1/./arbxx.hpp:274:14: note: 
+  ACB(int a, int b, slong ip) : intprec(ip) {
+             ^
+/home/orebas/FG1/./arbxx.hpp:274:21: note: 'int' and 'mp_limb_signed_t' may be implicitly converted: 'int' -> 'mp_limb_signed_t' (as 'long'), 'mp_limb_signed_t' (as 'long') -> 'int'
+  ACB(int a, int b, slong ip) : intprec(ip) {
+                    ^
+/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
+#define slong mp_limb_signed_t
+              ^
+/home/orebas/FG1/./arbxx.hpp:284:3: warning: constructor does not initialize these fields: c [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ACB(const mpc_t &p, slong local_prec) : intprec(local_prec) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:310:3: warning: constructor does not initialize these fields: c [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ACB(ACB &&other) noexcept : intprec(other.intprec) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:356:3: warning: function 'abs' should be marked [[nodiscard]] [modernize-use-nodiscard]
+  ARB abs() const {
+  ^
+  [[nodiscard]] 
+/home/orebas/FG1/./arbxx.hpp:370:3: warning: function 'abs_ubound_arf' should be marked [[nodiscard]] [modernize-use-nodiscard]
+  ARF abs_ubound_arf() const {
+  ^
+  [[nodiscard]] 
+/home/orebas/FG1/./arbxx.hpp:383:14: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+  void print(int digits = 5) { acb_printd(c, digits); }
+             ^         ~~~~
+/home/orebas/FG1/./arbxx.hpp:383:27: warning: 5 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  void print(int digits = 5) { acb_printd(c, digits); }
+                          ^
+/home/orebas/FG1/./arbxx.hpp:391:3: warning: accessing fields in struct '' is inefficient due to poor alignment; currently aligned to 1 bytes, but recommended alignment is 0 bytes [altera-struct-pack-align]
+  struct {
+  ^
+/home/orebas/FG1/./arbxx.hpp:391:3: note: use "__attribute__((aligned(0)))" to align struct '' to 0 bytes
+/home/orebas/FG1/./arbxx.hpp:426:14: warning: member variable 'pol' has public visibility [misc-non-private-member-variables-in-classes]
+  acb_poly_t pol;
+             ^
+/home/orebas/FG1/./arbxx.hpp:427:9: warning: member variable 'intprec' has public visibility [misc-non-private-member-variables-in-classes]
+  slong intprec = 1;
+        ^
+/home/orebas/FG1/./arbxx.hpp:429:3: warning: use 'using' instead of 'typedef' [modernize-use-using]
+  typedef acb_poly_struct *acb_poly_ptr;
+  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  using acb_poly_ptr = acb_poly_struct *
+/home/orebas/FG1/./arbxx.hpp:433:3: warning: constructor does not initialize these fields: pol [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  explicit ComplexPoly(slong ip) : intprec(ip) { acb_poly_init(pol); }
+  ^
+/home/orebas/FG1/./arbxx.hpp:434:3: warning: constructor does not initialize these fields: pol [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ComplexPoly(const ComplexPoly &other) : intprec(other.intprec) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:438:3: warning: constructor does not initialize these fields: pol [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ComplexPoly(ComplexPoly &&other) noexcept : intprec(other.intprec) {
+  ^
+/home/orebas/FG1/./arbxx.hpp:457:3: warning: constructor does not initialize these fields: pol [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
+  ComplexPoly(mps_context *s, mps_monomial_poly *p, std::size_t wp)
+  ^
+/home/orebas/FG1/./arbxx.hpp:458:17: warning: narrowing conversion from 'std::size_t' (aka 'unsigned long') to signed type 'mp_limb_signed_t' (aka 'long') is implementation-defined [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+      : intprec(wp) {
+                ^
+/home/orebas/FG1/./arbxx.hpp:473:44: warning: do not use C-style cast to convert between unrelated types [cppcoreguidelines-pro-type-cstyle-cast]
+      mps_monomial_poly_raise_precision(s, MPS_POLYNOMIAL(p), wp);
+                                           ^
+./MPSolve/include/mps/polynomial.h:29:28: note: expanded from macro 'MPS_POLYNOMIAL'
+#define MPS_POLYNOMIAL(t) (MPS_POLYNOMIAL_CAST (mps_polynomial, t))
+                           ^
+./MPSolve/include/mps/polynomial.h:26:88: note: expanded from macro 'MPS_POLYNOMIAL_CAST'
+#define MPS_POLYNOMIAL_CAST(typename, t) ((typename*)(mps_polynomial_cast (# typename, (mps_polynomial*)t)))
+                                                                                       ^
+/home/orebas/FG1/./arbxx.hpp:473:63: warning: narrowing conversion from 'std::size_t' (aka 'unsigned long') to signed type 'long' is implementation-defined [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+      mps_monomial_poly_raise_precision(s, MPS_POLYNOMIAL(p), wp);
+                                                              ^
+/home/orebas/FG1/./arbxx.hpp:476:11: warning: statement should be inside braces [google-readability-braces-around-statements,hicpp-braces-around-statements,readability-braces-around-statements]
+    } else
+          ^
+           {
+/home/orebas/FG1/./arbxx.hpp:483:26: warning: narrowing conversion from 'unsigned long' to signed type 'long' is implementation-defined [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+    rdpe_set_2dl(u, 1.0, 2 - wp);
+                         ^
+/home/orebas/FG1/./arbxx.hpp:492:27: warning: narrowing conversion from 'std::size_t' (aka 'unsigned long') to signed type 'mpfr_prec_t' (aka 'long') is implementation-defined [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+    mpfr_set_default_prec(local_prec);
+                          ^
+/home/orebas/FG1/./arbxx.hpp:497:24: warning: narrowing conversion from 'std::size_t' (aka 'unsigned long') to signed type 'mpfr_prec_t' (aka 'long') is implementation-defined [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+    mpfr_init2(mpfrre, local_prec);
+                       ^
+/home/orebas/FG1/./arbxx.hpp:498:24: warning: narrowing conversion from 'std::size_t' (aka 'unsigned long') to signed type 'mpfr_prec_t' (aka 'long') is implementation-defined [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+    mpfr_init2(mpfrim, local_prec);
+                       ^
+/home/orebas/FG1/./arbxx.hpp:501:25: warning: narrowing conversion from 'std::size_t' (aka 'unsigned long') to signed type 'mp_limb_signed_t' (aka 'long') is implementation-defined [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+    ACB acb_coeff(0, 0, local_prec);
+                        ^
+/home/orebas/FG1/./arbxx.hpp:502:5: warning: multiple declarations in a single statement reduces readability [readability-isolate-declaration]
+    ARB arbre(0, local_prec), arbim(0, local_prec);
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/orebas/FG1/./arbxx.hpp:502:18: warning: narrowing conversion from 'std::size_t' (aka 'unsigned long') to signed type 'mp_limb_signed_t' (aka 'long') is implementation-defined [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+    ARB arbre(0, local_prec), arbim(0, local_prec);
+                 ^
+/home/orebas/FG1/./arbxx.hpp:502:40: warning: narrowing conversion from 'std::size_t' (aka 'unsigned long') to signed type 'mp_limb_signed_t' (aka 'long') is implementation-defined [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+    ARB arbre(0, local_prec), arbim(0, local_prec);
+                                       ^
+/home/orebas/FG1/./arbxx.hpp:504:30: warning: do not use C-style cast to convert between unrelated types [cppcoreguidelines-pro-type-cstyle-cast]
+    acb_poly_fit_length(pol, MPS_POLYNOMIAL(p)->degree + 1);
+                             ^
+./MPSolve/include/mps/polynomial.h:29:28: note: expanded from macro 'MPS_POLYNOMIAL'
+#define MPS_POLYNOMIAL(t) (MPS_POLYNOMIAL_CAST (mps_polynomial, t))
+                           ^
+./MPSolve/include/mps/polynomial.h:26:88: note: expanded from macro 'MPS_POLYNOMIAL_CAST'
+#define MPS_POLYNOMIAL_CAST(typename, t) ((typename*)(mps_polynomial_cast (# typename, (mps_polynomial*)t)))
+                                                                                       ^
+/home/orebas/FG1/./arbxx.hpp:506:26: warning: do not use C-style cast to convert between unrelated types [cppcoreguidelines-pro-type-cstyle-cast]
+    for (int j = 0; j <= MPS_POLYNOMIAL(p)->degree; j++) {
+                         ^
+./MPSolve/include/mps/polynomial.h:29:28: note: expanded from macro 'MPS_POLYNOMIAL'
+#define MPS_POLYNOMIAL(t) (MPS_POLYNOMIAL_CAST (mps_polynomial, t))
+                           ^
+./MPSolve/include/mps/polynomial.h:26:88: note: expanded from macro 'MPS_POLYNOMIAL_CAST'
+#define MPS_POLYNOMIAL_CAST(typename, t) ((typename*)(mps_polynomial_cast (# typename, (mps_polynomial*)t)))
+                                                                                       ^
+/home/orebas/FG1/./arbxx.hpp:557:14: warning: declaring a parameter with a default argument is disallowed [fuchsia-default-arguments-declarations]
+  void print(int digits = 5) const {
+             ^         ~~~~
+/home/orebas/FG1/./arbxx.hpp:557:27: warning: 5 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  void print(int digits = 5) const {
+                          ^
+/home/orebas/FG1/./arbxx.hpp:580:23: warning: backward branch (for loop) is ID-dependent due to variable reference to 'deg' and may cause performance degradation [altera-id-dependent-backward-branch]
+    for (slong i = 0; i <= deg; i += 2) {
+                      ^
+/home/orebas/FG1/./arbxx.hpp:591:3: warning: function 'getCoeff' should be marked [[nodiscard]] [modernize-use-nodiscard]
+  ACB getCoeff(slong k) const {
+  ^
+  [[nodiscard]] 
+/home/orebas/FG1/./arbxx.hpp:597:39: warning: 2 adjacent parameters of 'getCoeffMPC' of similar type ('mp_limb_signed_t') are easily swapped by mistake [bugprone-easily-swappable-parameters]
+  void getCoeffMPC(mpc_t &GMPComplex, slong k, slong prec) const {
+                                      ^
+/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
+#define slong mp_limb_signed_t
+              ^
+/home/orebas/FG1/./arbxx.hpp:597:45: note: the first parameter in the range is 'k'
+  void getCoeffMPC(mpc_t &GMPComplex, slong k, slong prec) const {
+                                            ^
+/home/orebas/FG1/./arbxx.hpp:597:54: note: the last parameter in the range is 'prec'
+  void getCoeffMPC(mpc_t &GMPComplex, slong k, slong prec) const {
+                                                     ^~~~
+/home/orebas/FG1/./arbxx.hpp:599:5: warning: 'auto rearf' can be declared as 'auto *rearf' [llvm-qualified-auto,readability-qualified-auto]
+    auto rearf = arb_midref(acb_realref(coeff.c));
+    ^~~~~
+    auto *
+/home/orebas/FG1/./arbxx.hpp:600:5: warning: 'auto imarf' can be declared as 'auto *imarf' [llvm-qualified-auto,readability-qualified-auto]
+    auto imarf = arb_midref(acb_imagref(coeff.c));
+    ^~~~~
+    auto *
+/home/orebas/FG1/./arbxx.hpp:653:3: warning: function 'ArbLibSolve' should be marked [[nodiscard]] [modernize-use-nodiscard]
+  std::vector<ACB> ArbLibSolve(slong prec) const {
+  ^
+  [[nodiscard]] 
+/home/orebas/FG1/./arbxx.hpp:654:13: warning: variable 'roots' is not initialized [cppcoreguidelines-init-variables]
+    acb_ptr roots;
+            ^
+                  = nullptr
+/home/orebas/FG1/./arbxx.hpp:670:3: warning: function 'MPSolve' should be marked [[nodiscard]] [modernize-use-nodiscard]
+  std::vector<ACB> MPSolve(slong prec) const {
+  ^
+  [[nodiscard]] 
+/home/orebas/FG1/./arbxx.hpp:677:47: warning: do not use C-style cast to convert between unrelated types [cppcoreguidelines-pro-type-cstyle-cast]
+    mps_monomial_poly_raise_precision(status, MPS_POLYNOMIAL(poly), prec);
+                                              ^
+./MPSolve/include/mps/polynomial.h:29:28: note: expanded from macro 'MPS_POLYNOMIAL'
+#define MPS_POLYNOMIAL(t) (MPS_POLYNOMIAL_CAST (mps_polynomial, t))
+                           ^
+./MPSolve/include/mps/polynomial.h:26:88: note: expanded from macro 'MPS_POLYNOMIAL_CAST'
+#define MPS_POLYNOMIAL_CAST(typename, t) ((typename*)(mps_polynomial_cast (# typename, (mps_polynomial*)t)))
+                                                                                       ^
+/home/orebas/FG1/./arbxx.hpp:699:40: warning: do not use C-style cast to convert between unrelated types [cppcoreguidelines-pro-type-cstyle-cast]
+    mps_context_set_input_poly(status, MPS_POLYNOMIAL(poly));
+                                       ^
+./MPSolve/include/mps/polynomial.h:29:28: note: expanded from macro 'MPS_POLYNOMIAL'
+#define MPS_POLYNOMIAL(t) (MPS_POLYNOMIAL_CAST (mps_polynomial, t))
+                           ^
+./MPSolve/include/mps/polynomial.h:26:88: note: expanded from macro 'MPS_POLYNOMIAL_CAST'
+#define MPS_POLYNOMIAL_CAST(typename, t) ((typename*)(mps_polynomial_cast (# typename, (mps_polynomial*)t)))
+                                                                                       ^
+/home/orebas/FG1/./arbxx.hpp:700:43: warning: do not use C-style cast to convert between unrelated types [cppcoreguidelines-pro-type-cstyle-cast]
+    mps_polynomial_set_input_prec(status, MPS_POLYNOMIAL(poly),
+                                          ^
+./MPSolve/include/mps/polynomial.h:29:28: note: expanded from macro 'MPS_POLYNOMIAL'
+#define MPS_POLYNOMIAL(t) (MPS_POLYNOMIAL_CAST (mps_polynomial, t))
+                           ^
+./MPSolve/include/mps/polynomial.h:26:88: note: expanded from macro 'MPS_POLYNOMIAL_CAST'
+#define MPS_POLYNOMIAL_CAST(typename, t) ((typename*)(mps_polynomial_cast (# typename, (mps_polynomial*)t)))
+                                                                                       ^
+/home/orebas/FG1/./arbxx.hpp:701:46: warning: missing username/bug in TODO [google-readability-todo]
+                                  prec * 2); // TODO MAGIC NUMBER
+                                             ^~~~~~~~~~~~~~~~~~~~
+                                             // TODO(orebas): MAGIC NUMBER
+/home/orebas/FG1/./arbxx.hpp:704:41: warning: missing username/bug in TODO [google-readability-todo]
+                                    2); // TODO fix decimal vs binary everyhwere
+                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                        // TODO(orebas): fix decimal vs binary everyhwere
+/home/orebas/FG1/./arbxx.hpp:727:13: warning: use emplace_back instead of push_back [hicpp-use-emplace,modernize-use-emplace]
+      roots.push_back(ACB(results[i], prec));
+            ^~~~~~~~~~~~~~                ~
+            emplace_back(
+/home/orebas/FG1/./arbxx.hpp:730:36: warning: do not use C-style cast to convert between unrelated types [cppcoreguidelines-pro-type-cstyle-cast]
+    mps_monomial_poly_free(status, MPS_POLYNOMIAL(poly));
+                                   ^
+./MPSolve/include/mps/polynomial.h:29:28: note: expanded from macro 'MPS_POLYNOMIAL'
+#define MPS_POLYNOMIAL(t) (MPS_POLYNOMIAL_CAST (mps_polynomial, t))
+                           ^
+./MPSolve/include/mps/polynomial.h:26:88: note: expanded from macro 'MPS_POLYNOMIAL_CAST'
+#define MPS_POLYNOMIAL_CAST(typename, t) ((typename*)(mps_polynomial_cast (# typename, (mps_polynomial*)t)))
+                                                                                       ^
+/home/orebas/FG1/./arbxx.hpp:741:3: note: inferred assignment of ID-dependent value from ID-dependent  [altera-id-dependent-backward-branch]
+  auto length = vec.size();
+  ^
+/home/orebas/FG1/./arbxx.hpp:743:27: warning: backward branch (for loop) is ID-dependent due to variable reference to 'length' and may cause performance degradation [altera-id-dependent-backward-branch]
+  for (std::size_t i = 0; i < length; i++) {
+                          ^
+/home/orebas/FG1/./arbxx.hpp:744:12: warning: C-style casts are discouraged; use static_cast/const_cast/reinterpret_cast [google-readability-casting]
+    ACB cc((T)vec[i], (T)0.0, precision);
+           ^
+/home/orebas/FG1/./arbxx.hpp:744:23: warning: C-style casts are discouraged; use static_cast/const_cast/reinterpret_cast [google-readability-casting]
+    ACB cc((T)vec[i], (T)0.0, precision);
+                      ^
+/home/orebas/FG1/./arbxx.hpp:741:3: note: inferred assignment of ID-dependent value from ID-dependent  [altera-id-dependent-backward-branch]
+  auto length = vec.size();
+  ^
+/home/orebas/FG1/./arbxx.hpp:757:12: warning: avoid repeating the return type from the declaration; use a braced initializer list instead [modernize-return-braced-init-list]
+    return ARB(0, prec);
+           ^~~~       ~
+           {          }
+/home/orebas/FG1/./arbxx.hpp:760:27: warning: backward branch (for loop) is ID-dependent due to variable reference to 'n' and may cause performance degradation [altera-id-dependent-backward-branch]
+  for (std::size_t i = 0; i < n; i++) {
+                          ^
+/home/orebas/FG1/./benchmark.hpp:1:1: warning: header is missing header guard [llvm-header-guard]
+#pragma once
+^
+/home/orebas/FG1/./benchmark.hpp:14:62: warning: accessing fields in struct 'measure<>' is inefficient due to poor alignment; currently aligned to 1 bytes, but recommended alignment is 0 bytes [altera-struct-pack-align]
+template <typename TimeT = std::chrono::milliseconds> struct measure {
+                                                             ^
+/home/orebas/FG1/./benchmark.hpp:14:62: note: use "__attribute__((aligned(0)))" to align struct 'measure<>' to 0 bytes
+/home/orebas/FG1/./benchmark.hpp:39:5: warning: consider replacing 'long' with 'int64' [google-runtime-int]
+    long iters = 1000.0 / (duration.count() + 1);
+    ^
+/home/orebas/FG1/./benchmark.hpp:39:18: warning: narrowing conversion from 'double' to 'long' [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+    long iters = 1000.0 / (duration.count() + 1);
+                 ^
+/home/orebas/FG1/./benchmark.hpp:39:18: warning: 1000.0 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+/home/orebas/FG1/./benchmark.hpp:39:27: warning: narrowing conversion from 'long' to 'double' [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+    long iters = 1000.0 / (duration.count() + 1);
+                          ^
+/home/orebas/FG1/./benchmark.hpp:41:29: warning: 50L is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+    iters = std::min(iters, 50L);
+                            ^
+/home/orebas/FG1/./benchmark.hpp:42:10: warning: consider replacing 'long' with 'int64' [google-runtime-int]
+    for (long i = 0; i < iters; ++i) {
+         ^
+/home/orebas/FG1/./benchmark.hpp:42:22: warning: backward branch (for loop) is ID-dependent due to variable reference to 'iters' and may cause performance degradation [altera-id-dependent-backward-branch]
+    for (long i = 0; i < iters; ++i) {
+                     ^
+/home/orebas/FG1/./benchmark.hpp:53:1: warning: use 'using' instead of 'typedef' [modernize-use-using]
+typedef mps_context *mpscp;
+^~~~~~~~~~~~~~~~~~~~~~~~~~
+using mpscp = mps_context *
+/home/orebas/FG1/./benchmark.hpp:59:43: warning: consider replacing 'long' with 'int64' [google-runtime-int]
+           std::vector<ComplexPoly> qvec, long depth);
+                                          ^
+/home/orebas/FG1/./benchmark.hpp:67:15: warning: member variable 'p0' has public visibility [misc-non-private-member-variables-in-classes]
+  ComplexPoly p0;
+              ^
+/home/orebas/FG1/./benchmark.hpp:68:15: warning: member variable 'q0' has public visibility [misc-non-private-member-variables-in-classes]
+  ComplexPoly q0;
+              ^
+/home/orebas/FG1/./benchmark.hpp:69:9: warning: member variable 'prec' has public visibility [misc-non-private-member-variables-in-classes]
+  slong prec;
+        ^
+/home/orebas/FG1/./benchmark.hpp:70:9: warning: member variable 'degree' has public visibility [misc-non-private-member-variables-in-classes]
+  slong degree;
+        ^
+/home/orebas/FG1/./benchmark.hpp:71:42: warning: member variable 'coefficients' has public visibility [misc-non-private-member-variables-in-classes]
+  std::map<std::pair<slong, slong>, ACB> coefficients,
+                                         ^
+/home/orebas/FG1/./benchmark.hpp:72:7: warning: member variable 'qcoefficients' has public visibility [misc-non-private-member-variables-in-classes]
+      qcoefficients; // stores DLG coefficients, if and only if they have been
+      ^
+/home/orebas/FG1/./benchmark.hpp:77:7: warning: function 'calcCoeff' is within a recursive call chain [misc-no-recursion]
+  ACB calcCoeff(slong p, slong k) {
+      ^
+/home/orebas/FG1/./benchmark.hpp:77:7: note: example recursive call chain, starting from function 'calcCoeff'
+/home/orebas/FG1/./benchmark.hpp:90:19: note: Frame #1: function 'calcCoeff' calls function 'calcCoeff' here:
+                  calcCoeff(p - 1, j) *
+                  ^
+/home/orebas/FG1/./benchmark.hpp:90:19: note: ... which was the starting point of the recursive call chain; there may be other cycles
+/home/orebas/FG1/./benchmark.hpp:77:7: warning: function 'calcCoeff' has cognitive complexity of 34 (threshold 25) [readability-function-cognitive-complexity]
+  ACB calcCoeff(slong p, slong k) {
+      ^
+/home/orebas/FG1/./benchmark.hpp:80:5: note: +1, including nesting penalty of 0, nesting level increased to 1
+    if (k >= 0 && k <= degree) {
+    ^
+/home/orebas/FG1/./benchmark.hpp:80:16: note: +1
+    if (k >= 0 && k <= degree) {
+               ^
+/home/orebas/FG1/./benchmark.hpp:81:7: note: +2, including nesting penalty of 1, nesting level increased to 2
+      if (p == 0) {
+      ^
+/home/orebas/FG1/./benchmark.hpp:83:14: note: +1, nesting level increased to 2
+      } else if (coefficients.contains(key)) {
+             ^
+/home/orebas/FG1/./benchmark.hpp:85:9: note: +1, nesting level increased to 2
+      } else {
+        ^
+/home/orebas/FG1/./benchmark.hpp:86:9: note: +3, including nesting penalty of 2, nesting level increased to 3
+        if (2 * k > degree) {
+        ^
+/home/orebas/FG1/./benchmark.hpp:87:11: note: +4, including nesting penalty of 3, nesting level increased to 4
+          for (slong j = 0; j <= k - 1; j++) {
+          ^
+/home/orebas/FG1/./benchmark.hpp:88:13: note: +5, including nesting penalty of 4, nesting level increased to 5
+            if (j % 2 == 0) {
+            ^
+/home/orebas/FG1/./benchmark.hpp:94:15: note: +1, nesting level increased to 5
+            } else {
+              ^
+/home/orebas/FG1/./benchmark.hpp:98:11: note: +1, nesting level increased to 3
+        } else {
+          ^
+/home/orebas/FG1/./benchmark.hpp:99:11: note: +4, including nesting penalty of 3, nesting level increased to 4
+          for (slong j = k + 1; j <= 2 * k; j++) {
+          ^
+/home/orebas/FG1/./benchmark.hpp:100:13: note: +5, including nesting penalty of 4, nesting level increased to 5
+            if (j % 2 == 0) {
+            ^
+/home/orebas/FG1/./benchmark.hpp:106:15: note: +1, nesting level increased to 5
+            } else {
+              ^
+/home/orebas/FG1/./benchmark.hpp:113:9: note: +3, including nesting penalty of 2, nesting level increased to 3
+        if (k % 2 == 0) {
+        ^
+/home/orebas/FG1/./benchmark.hpp:115:11: note: +1, nesting level increased to 3
+        } else {
+          ^
+/home/orebas/FG1/./benchmark.hpp:99:16: note: inferred assignment of ID-dependent value from ID-dependent  [altera-id-dependent-backward-branch]
+          for (slong j = k + 1; j <= 2 * k; j++) {
+               ^
+/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
+#define slong mp_limb_signed_t
+              ^
+/home/orebas/FG1/./benchmark.hpp:99:33: warning: backward branch (for loop) is ID-dependent due to variable reference to 'j' and may cause performance degradation [altera-id-dependent-backward-branch]
+          for (slong j = k + 1; j <= 2 * k; j++) {
+                                ^
+/home/orebas/FG1/./benchmark.hpp:125:7: warning: function 'calcQcoeff' is within a recursive call chain [misc-no-recursion]
+  ACB calcQcoeff(slong q, slong k) {
+      ^
+/home/orebas/FG1/./benchmark.hpp:125:7: note: example recursive call chain, starting from function 'calcQcoeff'
+/home/orebas/FG1/./benchmark.hpp:139:23: note: Frame #1: function 'calcQcoeff' calls function 'calcQcoeff' here:
+            result += calcQcoeff(q - 1, i) * calcCoeff(q - 1, j);
+                      ^
+/home/orebas/FG1/./benchmark.hpp:139:23: note: ... which was the starting point of the recursive call chain; there may be other cycles
+/home/orebas/FG1/./benchmark.hpp:161:22: warning: narrowing conversion from 'typename __gnu_cxx::__promote_2<int, long>::__type' (aka 'double') to 'mp_limb_signed_t' (aka 'long') [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+            .root_ui(std::pow(2, depth));
+                     ^
+/home/orebas/FG1/./benchmark.hpp:169:22: warning: narrowing conversion from 'typename __gnu_cxx::__promote_2<int, long>::__type' (aka 'double') to 'mp_limb_signed_t' (aka 'long') [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+            .root_ui(std::pow(2, depth));
+                     ^
+/home/orebas/FG1/./benchmark.hpp:189:3: warning: single-argument constructors must be marked explicit to avoid unintentional implicit conversions [google-explicit-constructor,hicpp-explicit-conversions]
+  RecursiveRadiiEstimator(const ComplexPoly &polargtocopy)
+  ^
+  explicit 
+/home/orebas/FG1/./benchmark.hpp:199:15: warning: member variable 'p0' has public visibility [misc-non-private-member-variables-in-classes]
+  ComplexPoly p0;
+              ^
+/home/orebas/FG1/./benchmark.hpp:200:28: warning: member variable 'pvec' has public visibility [misc-non-private-member-variables-in-classes]
+  std::vector<ComplexPoly> pvec;
+                           ^
+/home/orebas/FG1/./benchmark.hpp:201:28: warning: member variable 'qvec' has public visibility [misc-non-private-member-variables-in-classes]
+  std::vector<ComplexPoly> qvec;
+                           ^
+/home/orebas/FG1/./benchmark.hpp:202:9: warning: member variable 'depth' has public visibility [misc-non-private-member-variables-in-classes]
+  slong depth, prec;
+        ^
+/home/orebas/FG1/./benchmark.hpp:202:16: warning: member variable 'prec' has public visibility [misc-non-private-member-variables-in-classes]
+  slong depth, prec;
+               ^
+/home/orebas/FG1/./benchmark.hpp:204:1: warning: redundant access specifier has the same accessibility as the previous access specifier [readability-redundant-access-specifiers]
+public:
+^~~~~~~
+/home/orebas/FG1/./benchmark.hpp:198:1: note: previously declared here
+public:
+^
+/home/orebas/FG1/./benchmark.hpp:214:7: warning: multiple declarations in a single statement reduces readability [readability-isolate-declaration]
+      ComplexPoly t1(prec), t2(prec), t3(prec);
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/orebas/FG1/./benchmark.hpp:242:45: warning: consider replacing 'long' with 'int64' [google-runtime-int]
+  FGSolver(const ComplexPoly &polargtocopy, long initdepth)
+                                            ^
+/home/orebas/FG1/./benchmark.hpp:254:9: warning: multiple declarations in a single statement reduces readability [readability-isolate-declaration]
+        ACB y0(0, 0, prec), y1(0, 0, prec);
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/orebas/FG1/./benchmark.hpp:262:41: warning: narrowing conversion from 'typename __gnu_cxx::__promote_2<int, long>::__type' (aka 'double') to 'mp_limb_t' (aka 'unsigned long') [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+        arb_root_ui(absval.r, absval.r, std::pow(2, i), y1.intprec);
+                                        ^
+/home/orebas/FG1/./benchmark.hpp:273:7: warning: multiple declarations in a single statement reduces readability [readability-isolate-declaration]
+      ACB y0(0, 0, prec), y1(0, 0, prec), prev_rat(0, 0, prec);
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/orebas/FG1/./benchmark.hpp:321:15: warning: function 'operator<<' defined in a header file; function definitions in header files can lead to ODR violations [misc-definitions-in-headers]
+std::ostream &operator<<(std::ostream &ost, const ARB &ls) {
+              ^
+/home/orebas/FG1/./benchmark.hpp:321:15: note: make as 'inline'
+std::ostream &operator<<(std::ostream &ost, const ARB &ls) {
+              ^
+inline 
+/home/orebas/FG1/./benchmark.hpp:322:3: warning: 'auto a' can be declared as 'auto *a' [llvm-qualified-auto,readability-qualified-auto]
+  auto a = arb_get_str(ls.r, 20, 0);
+  ^~~~~
+  auto *
+/home/orebas/FG1/./benchmark.hpp:322:30: warning: 20 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  auto a = arb_get_str(ls.r, 20, 0);
+                             ^
+/home/orebas/FG1/./benchmark.hpp:324:3: warning: do not manage memory manually; use RAII [cppcoreguidelines-no-malloc,hicpp-no-malloc]
+  free(a);
+  ^~~~~~~
+/home/orebas/FG1/./benchmark.hpp:324:3: warning: calling legacy resource function without passing a 'gsl::owner<>' [cppcoreguidelines-owning-memory]
+  free(a);
+  ^~~~~~~
+/home/orebas/FG1/./benchmark.hpp:328:15: warning: function 'operator<<' defined in a header file; function definitions in header files can lead to ODR violations [misc-definitions-in-headers]
+std::ostream &operator<<(std::ostream &ost, const ACB &ls) {
+              ^
+/home/orebas/FG1/./benchmark.hpp:328:15: note: make as 'inline'
+std::ostream &operator<<(std::ostream &ost, const ACB &ls) {
+              ^
+inline 
+/home/orebas/FG1/./benchmark.hpp:329:3: warning: 'auto a' can be declared as 'auto *a' [llvm-qualified-auto,readability-qualified-auto]
+  auto a = arb_get_str(acb_realref(ls.c), 20, 0);
+  ^~~~~
+  auto *
+/home/orebas/FG1/./benchmark.hpp:329:43: warning: 20 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  auto a = arb_get_str(acb_realref(ls.c), 20, 0);
+                                          ^
+/home/orebas/FG1/./benchmark.hpp:330:3: warning: 'auto b' can be declared as 'auto *b' [llvm-qualified-auto,readability-qualified-auto]
+  auto b = arb_get_str(acb_imagref(ls.c), 20, 0);
+  ^~~~~
+  auto *
+/home/orebas/FG1/./benchmark.hpp:330:43: warning: 20 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  auto b = arb_get_str(acb_imagref(ls.c), 20, 0);
+                                          ^
+/home/orebas/FG1/./benchmark.hpp:332:3: warning: do not manage memory manually; use RAII [cppcoreguidelines-no-malloc,hicpp-no-malloc]
+  free(a);
+  ^~~~~~~
+/home/orebas/FG1/./benchmark.hpp:332:3: warning: calling legacy resource function without passing a 'gsl::owner<>' [cppcoreguidelines-owning-memory]
+  free(a);
+  ^~~~~~~
+/home/orebas/FG1/./benchmark.hpp:333:3: warning: do not manage memory manually; use RAII [cppcoreguidelines-no-malloc,hicpp-no-malloc]
+  free(b);
+  ^~~~~~~
+/home/orebas/FG1/./benchmark.hpp:333:3: warning: calling legacy resource function without passing a 'gsl::owner<>' [cppcoreguidelines-owning-memory]
+  free(b);
+  ^~~~~~~
+/home/orebas/FG1/./benchmark.hpp:338:1: warning: function 'ACBVectorComp' defined in a header file; function definitions in header files can lead to ODR violations [misc-definitions-in-headers]
+ACBVectorComp(std::vector<ACB> &a,
+^
+/home/orebas/FG1/./benchmark.hpp:338:1: note: make as 'inline'
+ACBVectorComp(std::vector<ACB> &a,
+^
+/home/orebas/FG1/./benchmark.hpp:351:3: warning: multiple declarations in a single statement reduces readability [readability-isolate-declaration]
+  ARB maxrel(0, prec), maxabs(0, prec), rmsrel(0, prec), rmsabs(0, prec);
+  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/orebas/FG1/./benchmark.hpp:361:9: warning: implicit conversion 'int' -> bool [readability-implicit-bool-conversion]
+    if (arb_ge(rel[i].r, maxrel.r)) {
+        ^
+                                   != 0
+/home/orebas/FG1/./benchmark.hpp:364:9: warning: implicit conversion 'int' -> bool [readability-implicit-bool-conversion]
+    if (arb_ge(absdiff[i].r, maxabs.r)) {
+        ^
+                                       != 0
+/home/orebas/FG1/./benchmark.hpp:370:17: warning: C-style casts are discouraged; use static_cast [google-readability-casting]
+  rmsrel /= ARB((double)a.size(), prec);
+                ^~~~~~~~
+                static_cast<double>( )
+/home/orebas/FG1/./benchmark.hpp:371:17: warning: C-style casts are discouraged; use static_cast [google-readability-casting]
+  rmsabs /= ARB((double)a.size(), prec);
+                ^~~~~~~~
+                static_cast<double>( )
+/home/orebas/FG1/./benchmark.hpp:385:15: warning: member variable 'poly' has public visibility [misc-non-private-member-variables-in-classes]
+  ComplexPoly poly;
+              ^
+/home/orebas/FG1/./benchmark.hpp:386:9: warning: member variable 'depth' has public visibility [misc-non-private-member-variables-in-classes]
+  slong depth;
+        ^
+/home/orebas/FG1/./benchmark.hpp:388:27: warning: member variable 'RRE' has public visibility [misc-non-private-member-variables-in-classes]
+  RecursiveRadiiEstimator RRE;
+                          ^
+/home/orebas/FG1/./benchmark.hpp:389:12: warning: member variable 'FGS' has public visibility [misc-non-private-member-variables-in-classes]
+  FGSolver FGS;
+           ^
+/home/orebas/FG1/./benchmark.hpp:390:33: warning: member variable 'rootapprox' has public visibility [misc-non-private-member-variables-in-classes]
+  std::vector<std::vector<ACB>> rootapprox;
+                                ^
+/home/orebas/FG1/./benchmark.hpp:391:15: warning: pass by value and use std::move [modernize-pass-by-value]
+  RootSolver1(const ComplexPoly &intpoly, slong initdepth)
+              ^~~~~~~~~~~~~~~~~~~
+              ComplexPoly 
+/home/orebas/FG1/./benchmark.hpp:395:26: warning: redundant void argument list in function definition [modernize-redundant-void-arg]
+  std::vector<ACB> solve(void) {
+                         ^~~~
+/home/orebas/FG1/./benchmark.hpp:407:23: warning: backward branch (for loop) is ID-dependent due to variable reference to 'stripped_zeros' and may cause performance degradation [altera-id-dependent-backward-branch]
+      for (int i = 0; i < stripped_zeros; i++) {
+                      ^
+/home/orebas/FG1/./benchmark.hpp:408:15: warning: use emplace_back instead of push_back [hicpp-use-emplace,modernize-use-emplace]
+        roots.push_back(ACB(0.0, 0.0, poly.intprec));
+              ^~~~~~~~~~~~~~                      ~
+              emplace_back(
+/home/orebas/FG1/./benchmark.hpp:446:5: note: inferred assignment of ID-dependent value from ID-dependent  [altera-id-dependent-backward-branch]
+    const slong n = poly.degree();
+    ^
+/home/orebas/FG1/./benchmark.hpp:428:15: warning: loop variable is copied but only used as const reference; consider making it a const reference [performance-for-range-copy]
+    for (auto i : rootapprox.back()) {
+              ^
+         const  &
+/home/orebas/FG1/./benchmark.hpp:405:5: note: inferred assignment of ID-dependent value from ID-dependent  [altera-id-dependent-backward-branch]
+    slong stripped_zeros = acb_poly_valuation(poly.pol);
+    ^
+/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
+#define slong mp_limb_signed_t
+              ^
+/home/orebas/FG1/./benchmark.hpp:448:37: warning: 10 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+    auto maxRad = ACB(RRE.maxRadius(10)); // TODO(orebas) MAGIC NUMBER
+                                    ^
+/home/orebas/FG1/./benchmark.hpp:477:23: warning: backward branch (for loop) is ID-dependent due to variable reference to 'n' and may cause performance degradation [altera-id-dependent-backward-branch]
+    for (slong k = 0; k < n; k++) {
+                      ^
+/home/orebas/FG1/./benchmark.hpp:480:25: warning: backward branch (for loop) is ID-dependent due to variable reference to 'n' and may cause performance degradation [altera-id-dependent-backward-branch]
+      for (slong i = 0; i < (n * 2) + 100; i++) {
+                        ^
+/home/orebas/FG1/./benchmark.hpp:480:39: warning: 100 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+      for (slong i = 0; i < (n * 2) + 100; i++) {
+                                      ^
+/home/orebas/FG1/./benchmark.hpp:496:9: warning: use range-based for loop instead [modernize-loop-convert]
+        for (std::size_t j = 0; j < roots.size(); j++) {
+        ^   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            (auto & root : roots)
+/home/orebas/FG1/benchmark.cpp:22:9: warning: declaration uses identifier '_MPS_PRIVATE', which is a reserved identifier [bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp]
+#define _MPS_PRIVATE
+        ^~~~~~~~~~~~
+        MPS_PRIVATE
+/home/orebas/FG1/benchmark.cpp:46:14: warning: parameter 'argc' is unused [misc-unused-parameters]
+int main(int argc, char **argv) {
+             ^~~~
+              /*argc*/
+/home/orebas/FG1/benchmark.cpp:46:27: warning: parameter 'argv' is unused [misc-unused-parameters]
+int main(int argc, char **argv) {
+                          ^~~~
+                           /*argv*/
+/home/orebas/FG1/benchmark.cpp:149:26: warning: narrowing conversion from 'typename duration<long, ratio<1, 1000>>::rep' (aka 'long') to 'double' [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+      timings(i, j, 0) = measure<std::chrono::milliseconds>::execution(
+                         ^
+/home/orebas/FG1/benchmark.cpp:159:3: warning: do not use namespace using-directives; use using-declarations instead [google-build-using-namespace]
+  using namespace tabulate;
+  ^
+/home/orebas/FG1/benchmark.cpp:180:40: warning: parameter 'user_data' is unused [misc-unused-parameters]
+void *cleanup_context(mpscp ctx, void *user_data, mps_polynomial *poly,
+                                       ^~~~~~~~~
+                                        /*user_data*/
+/home/orebas/FG1/benchmark.cpp:241:3: warning: assigning newly created 'gsl::owner<>' to non-owner 'FILE *' (aka '_IO_FILE *') [cppcoreguidelines-owning-memory]
+  infile = fopen(polfilename.c_str(), "re");
+  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/orebas/FG1/benchmark.cpp:243:5: warning: do not call c-style vararg functions [cppcoreguidelines-pro-type-vararg,hicpp-vararg]
+    mps_error(local_s, "Cannot open input file for read, aborting.");
+    ^
+/home/orebas/FG1/benchmark.cpp:253:5: warning: do not call c-style vararg functions [cppcoreguidelines-pro-type-vararg,hicpp-vararg]
+    mps_error(local_s, "Error while parsing the polynomial, aborting.");
+    ^
+/home/orebas/FG1/benchmark.cpp:256:5: warning: do not use 'else' after 'return' [llvm-else-after-return,readability-else-after-return]
+  } else {
+    ^~~~~~
+/home/orebas/FG1/benchmark.cpp:267:35: warning: 2000 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+                                  2000); // TODO(orebas) MAGIC NUMBER
+                                  ^
+/home/orebas/FG1/benchmark.cpp:274:35: warning: do not use array subscript when the index is not an integer constant expression [cppcoreguidelines-pro-bounds-constant-array-index]
+                                  MPS_DENSITY_IS_SPARSE(local_poly->density))
+                                  ^
+./MPSolve/include/mps/private/options.h:143:37: note: expanded from macro 'MPS_DENSITY_IS_SPARSE'
+#define MPS_DENSITY_IS_SPARSE(x)   (mps_sparse_representations[(x)])
+                                    ^
+/home/orebas/FG1/benchmark.cpp:281:11: warning: calling legacy resource function without passing a 'gsl::owner<>' [cppcoreguidelines-owning-memory]
+    (void)fclose(infile);
+          ^~~~~~~~~~~~~~
+/home/orebas/FG1/benchmark.cpp:373:30: warning: parameter 'local_s' is unused [misc-unused-parameters]
+void temp_print(mps_context *local_s, mps_polynomial *poly) {
+                             ^~~~~~~
+                              /*local_s*/
+/home/orebas/FG1/benchmark.cpp:375:3: warning: use auto when initializing with a cast to avoid duplicating the type name [hicpp-use-auto,modernize-use-auto]
+  mps_monomial_poly *mon_poly = reinterpret_cast<mps_monomial_poly *>(poly);
+  ^~~~~~~~~~~~~~~~~
+  auto
+/home/orebas/FG1/benchmark.cpp:375:33: warning: do not use reinterpret_cast [cppcoreguidelines-pro-type-reinterpret-cast]
+  mps_monomial_poly *mon_poly = reinterpret_cast<mps_monomial_poly *>(poly);
+                                ^
+/home/orebas/FG1/benchmark.cpp:399:28: warning: 3 adjacent parameters of 'powersums' of similar type ('mp_limb_signed_t') are easily swapped by mistake [bugprone-easily-swappable-parameters]
+std::vector<ACB> powersums(slong depth, slong max_k, slong prec) {
+                           ^
+/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
+#define slong mp_limb_signed_t
+              ^
+/home/orebas/FG1/benchmark.cpp:399:34: note: the first parameter in the range is 'depth'
+std::vector<ACB> powersums(slong depth, slong max_k, slong prec) {
+                                 ^~~~~
+/home/orebas/FG1/benchmark.cpp:399:60: note: the last parameter in the range is 'prec'
+std::vector<ACB> powersums(slong depth, slong max_k, slong prec) {
+                                                           ^~~~
+/home/orebas/FG1/benchmark.cpp:424:3: note: inferred assignment of ID-dependent value from ID-dependent  [altera-id-dependent-backward-branch]
+  ComplexPoly acb_style_poly = ComplexPoly(local_s, local_poly, prec);
+  ^
+/home/orebas/FG1/benchmark.cpp:414:7: warning: do not use C-style cast to convert between unrelated types [cppcoreguidelines-pro-type-cstyle-cast]
+      MPS_POLYNOMIAL_CAST(mps_monomial_poly, poly_local_poly);
+      ^
+./MPSolve/include/mps/polynomial.h:26:43: note: expanded from macro 'MPS_POLYNOMIAL_CAST'
+#define MPS_POLYNOMIAL_CAST(typename, t) ((typename*)(mps_polynomial_cast (# typename, (mps_polynomial*)t)))
+                                          ^
+/home/orebas/FG1/benchmark.cpp:423:16: warning: 2000 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  slong prec = 2000; // TODO(orebas) MAGIC NUMBER
+               ^
+/home/orebas/FG1/benchmark.cpp:483:7: warning: narrowing conversion from 'typename duration<long, ratio<1, 1000>>::rep' (aka 'long') to 'double' [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+      measure<std::chrono::milliseconds>::execution(funcMPS); // runs mpsolve
+      ^
+/home/orebas/FG1/benchmark.cpp:485:7: warning: narrowing conversion from 'typename duration<long, ratio<1, 1000>>::rep' (aka 'long') to 'double' [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+      measure<std::chrono::milliseconds>::execution(funcRS1); // runs mpsolve
+      ^
+/home/orebas/FG1/benchmark.cpp:492:22: warning: backward branch (for loop) is ID-dependent due to variable reference to 'acb_style_poly' and may cause performance degradation [altera-id-dependent-backward-branch]
+  for (slong rt = 0; rt < acb_style_poly.degree(); rt++) {
+                     ^
+/home/orebas/FG1/benchmark.cpp:610:3: note: inferred assignment of ID-dependent value from ID-dependent 
+  auto rootapprox = RS1.rootapprox;
+  ^
+/home/orebas/FG1/benchmark.cpp:498:3: warning: accessing fields in struct '' is inefficient due to poor alignment; currently aligned to 1 bytes, but recommended alignment is 0 bytes [altera-struct-pack-align]
+  struct {
+  ^
+/home/orebas/FG1/benchmark.cpp:498:3: note: use "__attribute__((aligned(0)))" to align struct '' to 0 bytes
+/home/orebas/FG1/benchmark.cpp:504:11: warning: implicit conversion 'int' -> bool [readability-implicit-bool-conversion]
+      if (arb_lt(a.abs().r, b.abs().r)) {
+          ^
+                                       != 0
+/home/orebas/FG1/benchmark.cpp:507:11: warning: implicit conversion 'int' -> bool [readability-implicit-bool-conversion]
+      if (arb_gt(a.abs().r, b.abs().r)) {
+          ^
+                                       != 0
+/home/orebas/FG1/benchmark.cpp:514:11: warning: implicit conversion 'int' -> bool [readability-implicit-bool-conversion]
+      if (arb_lt(arg1.r, arg2.r)) {
+          ^
+                                 != 0
+/home/orebas/FG1/benchmark.cpp:517:11: warning: implicit conversion 'int' -> bool [readability-implicit-bool-conversion]
+      if (arb_gt(arg1.r, arg2.r)) {
+          ^
+                                 != 0
+/home/orebas/FG1/benchmark.cpp:524:3: warning: accessing fields in struct '' is inefficient due to poor alignment; currently aligned to 1 bytes, but recommended alignment is 0 bytes [altera-struct-pack-align]
+  struct {
+  ^
+/home/orebas/FG1/benchmark.cpp:524:3: note: use "__attribute__((aligned(0)))" to align struct '' to 0 bytes
+/home/orebas/FG1/benchmark.cpp:542:11: warning: implicit conversion 'int' -> bool [readability-implicit-bool-conversion]
+      if (arb_lt(re1.r, re2.r)) {
+          ^
+                               != 0
+/home/orebas/FG1/benchmark.cpp:545:11: warning: implicit conversion 'int' -> bool [readability-implicit-bool-conversion]
+      if (arb_gt(re1.r, re2.r)) {
+          ^
+                               != 0
+/home/orebas/FG1/benchmark.cpp:548:11: warning: implicit conversion 'int' -> bool [readability-implicit-bool-conversion]
+      if (arb_lt(im1.r, im2.r)) {
+          ^
+                               != 0
+/home/orebas/FG1/benchmark.cpp:551:11: warning: implicit conversion 'int' -> bool [readability-implicit-bool-conversion]
+      if (arb_gt(im1.r, im2.r)) {
+          ^
+                               != 0
+/home/orebas/FG1/benchmark.cpp:562:19: warning: narrowing conversion from 'std::vector::size_type' (aka 'unsigned long') to signed type 'mp_limb_signed_t' (aka 'long') is implementation-defined [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+  slong matsize = mps_roots.size();
+                  ^
+/home/orebas/FG1/benchmark.cpp:614:28: warning: backward branch (for loop) is ID-dependent due to variable reference to 'rootapprox' and may cause performance degradation [altera-id-dependent-backward-branch]
+  for (std::size_t ri = 1; ri < rootapprox.size(); ri++) {
+                           ^
+/home/orebas/FG1/benchmark.cpp:619:3: warning: do not manage memory manually; use RAII [cppcoreguidelines-no-malloc,hicpp-no-malloc]
+  mpc_vfree(results);
+  ^
+/home/orebas/FG1/./MPSolve/include/mps/mpc.h:169:33: note: expanded from macro 'mpc_vfree'
+#define mpc_vfree(C)            free (C)
+                                ^~~~~~~~
+/home/orebas/FG1/benchmark.cpp:619:3: warning: calling legacy resource function without passing a 'gsl::owner<>' [cppcoreguidelines-owning-memory]
+  mpc_vfree(results);
+  ^
+/home/orebas/FG1/./MPSolve/include/mps/mpc.h:169:33: note: expanded from macro 'mpc_vfree'
+#define mpc_vfree(C)            free (C)
+                                ^~~~~~~~
+/home/orebas/FG1/benchmark.cpp:620:37: warning: do not use C-style cast to convert between unrelated types [cppcoreguidelines-pro-type-cstyle-cast]
+  cleanup_context(local_s, nullptr, MPS_POLYNOMIAL(local_poly), local_s, false);
+                                    ^
+./MPSolve/include/mps/polynomial.h:29:28: note: expanded from macro 'MPS_POLYNOMIAL'
+#define MPS_POLYNOMIAL(t) (MPS_POLYNOMIAL_CAST (mps_polynomial, t))
+                           ^
+./MPSolve/include/mps/polynomial.h:26:88: note: expanded from macro 'MPS_POLYNOMIAL_CAST'
+#define MPS_POLYNOMIAL_CAST(typename, t) ((typename*)(mps_polynomial_cast (# typename, (mps_polynomial*)t)))
+                                                                                       ^
+/home/orebas/FG1/benchmark.cpp:626:7: warning: do not use C-style cast to convert between unrelated types [cppcoreguidelines-pro-type-cstyle-cast]
+      MPS_POLYNOMIAL_CAST(mps_monomial_poly, poly_local_poly);
+      ^
+./MPSolve/include/mps/polynomial.h:26:43: note: expanded from macro 'MPS_POLYNOMIAL_CAST'
+#define MPS_POLYNOMIAL_CAST(typename, t) ((typename*)(mps_polynomial_cast (# typename, (mps_polynomial*)t)))
+                                          ^
+/home/orebas/FG1/benchmark.cpp:633:16: warning: 2000 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  slong prec = 2000; // TODO MAGIC NUMBER
+               ^
+/home/orebas/FG1/benchmark.cpp:633:22: warning: missing username/bug in TODO [google-readability-todo]
+  slong prec = 2000; // TODO MAGIC NUMBER
+                     ^~~~~~~~~~~~~~~~~~~~
+                     // TODO(orebas): MAGIC NUMBER
+/home/orebas/FG1/benchmark.cpp:635:3: warning: multiple declarations in a single statement reduces readability [readability-isolate-declaration]
+  std::vector<ComplexPoly> pvec, qvec;
+  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/orebas/FG1/benchmark.cpp:637:15: warning: 40 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  int depth = 40;
+              ^
+/home/orebas/FG1/benchmark.cpp:658:31: warning: 15 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  for (int depth = 0; depth < 15; depth++) {
+                              ^
+/home/orebas/FG1/benchmark.cpp:663:31: warning: 15 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  for (int depth = 0; depth < 15; depth++) {
+                              ^
+/home/orebas/FG1/benchmark.cpp:669:21: warning: narrowing conversion from 'typename duration<long, ratio<1, 1000>>::rep' (aka 'long') to 'double' [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+  double initTime = measure<std::chrono::milliseconds>::execution(func);
+                    ^
+/home/orebas/FG1/benchmark.cpp:672:37: warning: do not use C-style cast to convert between unrelated types [cppcoreguidelines-pro-type-cstyle-cast]
+  cleanup_context(local_s, nullptr, MPS_POLYNOMIAL(local_poly), local_s, false);
+                                    ^
+./MPSolve/include/mps/polynomial.h:29:28: note: expanded from macro 'MPS_POLYNOMIAL'
+#define MPS_POLYNOMIAL(t) (MPS_POLYNOMIAL_CAST (mps_polynomial, t))
+                           ^
+./MPSolve/include/mps/polynomial.h:26:88: note: expanded from macro 'MPS_POLYNOMIAL_CAST'
+#define MPS_POLYNOMIAL_CAST(typename, t) ((typename*)(mps_polynomial_cast (# typename, (mps_polynomial*)t)))
+                                                                                       ^
+/home/orebas/FG1/benchmark.cpp:677:15: warning: member variable 'p' has public visibility [misc-non-private-member-variables-in-classes]
+  ComplexPoly p;
+              ^
+/home/orebas/FG1/benchmark.cpp:678:7: warning: member variable 'r' has public visibility [misc-non-private-member-variables-in-classes]
+  ARB r;
+      ^
+/home/orebas/FG1/benchmark.cpp:679:9: warning: member variable 'xpower' has public visibility [misc-non-private-member-variables-in-classes]
+  slong xpower;
+        ^
+/home/orebas/FG1/benchmark.cpp:688:29: warning: 2 adjacent parameters of 'pprime_over_p_integrand' of similar type ('mp_limb_signed_t') are easily swapped by mistake [bugprone-easily-swappable-parameters]
+                            slong order, slong prec) {
+                            ^
+/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
+#define slong mp_limb_signed_t
+              ^
+/home/orebas/FG1/benchmark.cpp:688:35: note: the first parameter in the range is 'order'
+                            slong order, slong prec) {
+                                  ^~~~~
+/home/orebas/FG1/benchmark.cpp:688:48: note: the last parameter in the range is 'prec'
+                            slong order, slong prec) {
+                                               ^~~~
+/home/orebas/FG1/benchmark.cpp:688:35: warning: parameter 'order' is unused [misc-unused-parameters]
+                            slong order, slong prec) {
+                                  ^~~~~
+                                   /*order*/
+/home/orebas/FG1/benchmark.cpp:692:3: warning: multiple declarations in a single statement reduces readability [readability-isolate-declaration]
+  ACB a(0, 0, prec), b(0, 0, prec), z(0, 0, prec);
+  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/orebas/FG1/benchmark.cpp:694:3: warning: use auto when initializing with a cast to avoid duplicating the type name [hicpp-use-auto,modernize-use-auto]
+  integrand_parameters *params =
+  ^~~~~~~~~~~~~~~~~~~~
+  auto
+/home/orebas/FG1/benchmark.cpp:695:7: warning: do not use reinterpret_cast [cppcoreguidelines-pro-type-reinterpret-cast]
+      reinterpret_cast<integrand_parameters *>(paramsv);
+      ^
+/home/orebas/FG1/benchmark.cpp:726:34: warning: parameter 'minrad' is passed by value and only copied once; consider moving it to avoid unnecessary copies [performance-unnecessary-value-param]
+  integrand_parameters params(p, minrad, 0);
+                                 ^
+                                 std::move( )
+/home/orebas/FG1/benchmark.cpp:731:21: warning: narrowing conversion from 'std::size_t' (aka 'unsigned long') to signed type 'mp_limb_signed_t' (aka 'long') is implementation-defined [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+    params.xpower = k;
+                    ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/map:114:2: warning: namespace 'std_GLIBCXX_VISIBILITY' ends with a comment that refers to a wrong namespace 'std' [google-readability-namespace-comments]
+} // namespace std
+ ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/map:91:11: note: namespace 'std_GLIBCXX_VISIBILITY' starts here
+namespace std _GLIBCXX_VISIBILITY(default)
+          ^
+/home/orebas/FG1/./benchmark.hpp:39:5: note: inferred assignment of ID-dependent value from ID-dependent variable duration [altera-id-dependent-backward-branch]
+    long iters = 1000.0 / (duration.count() + 1);
+    ^
