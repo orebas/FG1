@@ -239,7 +239,7 @@ public:
     acb_set_d_d(c, x, y);
   }
 
-  ACB(const ARB &r) : intprec(r.intprec) {
+  explicit ACB(const ARB &r) : intprec(r.intprec) {
     acb_init(c);
     acb_set_arb(this->c, r.r);
   }
@@ -454,8 +454,7 @@ public:
     acb_poly_compose(result.pol, this->pol, polarg.pol, intprec);
     return result;
   }
-  ComplexPoly(mps_context *s, mps_monomial_poly *p, std::size_t wp)
-      : intprec(wp) {
+  ComplexPoly(mps_context *s, mps_monomial_poly *p, slong wp) : intprec(wp) {
     acb_poly_init(pol);
     // int i;
     // rdpe_t apol, ax
@@ -473,9 +472,9 @@ public:
       mps_monomial_poly_raise_precision(s, MPS_POLYNOMIAL(p), wp);
       std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
                 << std::endl;
-    } else
+    } else {
       pthread_mutex_unlock(&p->mfpc_mutex[0]);
-
+    }
     // if (mpc_get_prec(x) < wp)
     //     mpc_set_prec(x, wp);
 
@@ -698,10 +697,10 @@ public:
     //  Solve the polynomial
     mps_context_set_input_poly(status, MPS_POLYNOMIAL(poly));
     mps_polynomial_set_input_prec(status, MPS_POLYNOMIAL(poly),
-                                  prec * 2); // TODO MAGIC NUMBER
-    mps_context_set_output_prec(status,
-                                prec *
-                                    2); // TODO fix decimal vs binary everyhwere
+                                  prec * 2); // TODO(orebas) MAGIC NUMBER
+    mps_context_set_output_prec(
+        status,
+        prec * 2); // TODO(orebas) fix decimal vs binary everyhwere
     // MPS_ALGORITHM_SECULAR_GA
     mps_context_select_algorithm(status, MPS_ALGORITHM_STANDARD_MPSOLVE);
     mps_phase phase = no_phase;
@@ -724,7 +723,7 @@ public:
 
     std::vector<ACB> roots;
     for (slong i = 0; i < n; i++) {
-      roots.push_back(ACB(results[i], prec));
+      roots.emplace_back(ACB(results[i], prec));
       // mpc_clear(results[i]);
     }
     mps_monomial_poly_free(status, MPS_POLYNOMIAL(poly));

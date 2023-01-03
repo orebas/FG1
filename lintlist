@@ -1,28 +1,10 @@
-clang-tidy  -header-filter=.*.hpp --checks=*,-llvmlibc-*,-readability-identifier-length,-fuchsia-overloaded-operator,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-modernize-use-trailing-return-type,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-hicpp-no-array-decay,-altera-unroll-loops,-fuchsia-default-arguments-calls benchmark.cpp   -- -I. -I./MPSolve/include  --std=c++2a -Wno-register    
+clang-tidy  -header-filter=.*.hpp --checks=*,-bugprone-easily-swappable-parameters,-llvmlibc-*,-readability-identifier-length,-fuchsia-overloaded-operator,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-modernize-use-trailing-return-type,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-hicpp-no-array-decay,-altera-unroll-loops,-fuchsia-default-arguments-calls benchmark.cpp   -- -I. -I./MPSolve/include  --std=c++2a -Wno-register    
 /home/orebas/FG1/./arbxx.hpp:1:1: warning: header is missing header guard [llvm-header-guard]
 #pragma once
 ^
 /home/orebas/FG1/./arbxx.hpp:14:18: warning: member variable 'data' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes]
   std::vector<T> data;
                  ^
-/home/orebas/FG1/./arbxx.hpp:16:11: warning: 3 adjacent parameters of 'Array3d<T>' of similar type ('std::size_t') are easily swapped by mistake [bugprone-easily-swappable-parameters]
-  Array3d(std::size_t width, std::size_t height, std::size_t depth)
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/orebas/FG1/./arbxx.hpp:16:23: note: the first parameter in the range is 'width'
-  Array3d(std::size_t width, std::size_t height, std::size_t depth)
-                      ^~~~~
-/home/orebas/FG1/./arbxx.hpp:16:62: note: the last parameter in the range is 'depth'
-  Array3d(std::size_t width, std::size_t height, std::size_t depth)
-                                                             ^~~~~
-/home/orebas/FG1/./arbxx.hpp:19:11: warning: 3 adjacent parameters of 'Array3d<T>' of similar type ('std::size_t') are easily swapped by mistake [bugprone-easily-swappable-parameters]
-  Array3d(std::size_t width, std::size_t height, std::size_t depth,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/orebas/FG1/./arbxx.hpp:19:23: note: the first parameter in the range is 'width'
-  Array3d(std::size_t width, std::size_t height, std::size_t depth,
-                      ^~~~~
-/home/orebas/FG1/./arbxx.hpp:19:62: note: the last parameter in the range is 'depth'
-  Array3d(std::size_t width, std::size_t height, std::size_t depth,
-                                                             ^~~~~
 /home/orebas/FG1/./arbxx.hpp:27:3: warning: function 'at' should be marked [[nodiscard]] [modernize-use-nodiscard]
   inline T at(std::size_t x, std::size_t y, std::size_t z) const {
   ^
@@ -30,15 +12,6 @@ clang-tidy  -header-filter=.*.hpp --checks=*,-llvmlibc-*,-readability-identifier
 /home/orebas/FG1/./arbxx.hpp:51:18: warning: member variable 'data' has public visibility [cppcoreguidelines-non-private-member-variables-in-classes,misc-non-private-member-variables-in-classes]
   std::vector<T> data;
                  ^
-/home/orebas/FG1/./arbxx.hpp:53:11: warning: 4 adjacent parameters of 'Array4d<T>' of similar type ('std::size_t') are easily swapped by mistake [bugprone-easily-swappable-parameters]
-  Array4d(std::size_t r, std::size_t s, std::size_t t, std::size_t u)
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/orebas/FG1/./arbxx.hpp:53:23: note: the first parameter in the range is 'r'
-  Array4d(std::size_t r, std::size_t s, std::size_t t, std::size_t u)
-                      ^
-/home/orebas/FG1/./arbxx.hpp:53:68: note: the last parameter in the range is 'u'
-  Array4d(std::size_t r, std::size_t s, std::size_t t, std::size_t u)
-                                                                   ^
 /home/orebas/FG1/./arbxx.hpp:83:9: warning: member variable 'f' has public visibility [misc-non-private-member-variables-in-classes]
   arf_t f;
         ^
@@ -51,24 +24,6 @@ clang-tidy  -header-filter=.*.hpp --checks=*,-llvmlibc-*,-readability-identifier
 /home/orebas/FG1/./arbxx.hpp:91:3: warning: constructor does not initialize these fields: f [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
   ARF(double x, slong ip) : intprec(ip) {
   ^
-/home/orebas/FG1/./arbxx.hpp:91:7: warning: 2 adjacent parameters of 'ARF' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
-  ARF(double x, slong ip) : intprec(ip) {
-      ^~~~~~~~~~~~~~~~~~
-/home/orebas/FG1/./arbxx.hpp:91:14: note: the first parameter in the range is 'x'
-  ARF(double x, slong ip) : intprec(ip) {
-             ^
-/home/orebas/FG1/./arbxx.hpp:91:23: note: the last parameter in the range is 'ip'
-  ARF(double x, slong ip) : intprec(ip) {
-                      ^~
-/home/orebas/FG1/./arbxx.hpp:91:7: note: 
-  ARF(double x, slong ip) : intprec(ip) {
-      ^
-/home/orebas/FG1/./arbxx.hpp:91:17: note: 'double' and 'mp_limb_signed_t' may be implicitly converted: 'double' -> 'mp_limb_signed_t' (as 'long'), 'mp_limb_signed_t' (as 'long') -> 'double'
-  ARF(double x, slong ip) : intprec(ip) {
-                ^
-/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
-#define slong mp_limb_signed_t
-              ^
 /home/orebas/FG1/./arbxx.hpp:97:3: warning: constructor does not initialize these fields: f [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
   ARF(ARF &&other) noexcept : intprec(other.intprec) {
   ^
@@ -84,45 +39,9 @@ clang-tidy  -header-filter=.*.hpp --checks=*,-llvmlibc-*,-readability-identifier
 /home/orebas/FG1/./arbxx.hpp:129:3: warning: constructor does not initialize these fields: r [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
   ARB(double x, slong ip) : intprec(ip) {
   ^
-/home/orebas/FG1/./arbxx.hpp:129:7: warning: 2 adjacent parameters of 'ARB' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
-  ARB(double x, slong ip) : intprec(ip) {
-      ^~~~~~~~~~~~~~~~~~
-/home/orebas/FG1/./arbxx.hpp:129:14: note: the first parameter in the range is 'x'
-  ARB(double x, slong ip) : intprec(ip) {
-             ^
-/home/orebas/FG1/./arbxx.hpp:129:23: note: the last parameter in the range is 'ip'
-  ARB(double x, slong ip) : intprec(ip) {
-                      ^~
-/home/orebas/FG1/./arbxx.hpp:129:7: note: 
-  ARB(double x, slong ip) : intprec(ip) {
-      ^
-/home/orebas/FG1/./arbxx.hpp:129:17: note: 'double' and 'mp_limb_signed_t' may be implicitly converted: 'double' -> 'mp_limb_signed_t' (as 'long'), 'mp_limb_signed_t' (as 'long') -> 'double'
-  ARB(double x, slong ip) : intprec(ip) {
-                ^
-/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
-#define slong mp_limb_signed_t
-              ^
 /home/orebas/FG1/./arbxx.hpp:133:3: warning: constructor does not initialize these fields: r [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
   ARB(int x, slong ip) : intprec(ip) {
   ^
-/home/orebas/FG1/./arbxx.hpp:133:7: warning: 2 adjacent parameters of 'ARB' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
-  ARB(int x, slong ip) : intprec(ip) {
-      ^~~~~~~~~~~~~~~
-/home/orebas/FG1/./arbxx.hpp:133:11: note: the first parameter in the range is 'x'
-  ARB(int x, slong ip) : intprec(ip) {
-          ^
-/home/orebas/FG1/./arbxx.hpp:133:20: note: the last parameter in the range is 'ip'
-  ARB(int x, slong ip) : intprec(ip) {
-                   ^~
-/home/orebas/FG1/./arbxx.hpp:133:7: note: 
-  ARB(int x, slong ip) : intprec(ip) {
-      ^
-/home/orebas/FG1/./arbxx.hpp:133:14: note: 'int' and 'mp_limb_signed_t' may be implicitly converted: 'int' -> 'mp_limb_signed_t' (as 'long'), 'mp_limb_signed_t' (as 'long') -> 'int'
-  ARB(int x, slong ip) : intprec(ip) {
-             ^
-/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
-#define slong mp_limb_signed_t
-              ^
 /home/orebas/FG1/./arbxx.hpp:138:3: warning: constructor does not initialize these fields: r [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
   ARB(ARB &&other) noexcept : intprec(other.intprec) {
   ^
@@ -147,24 +66,6 @@ clang-tidy  -header-filter=.*.hpp --checks=*,-llvmlibc-*,-readability-identifier
 /home/orebas/FG1/./arbxx.hpp:237:3: warning: constructor does not initialize these fields: c [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
   ACB(double x, double y, slong ip) : intprec(ip) {
   ^
-/home/orebas/FG1/./arbxx.hpp:237:17: warning: 2 adjacent parameters of 'ACB' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
-  ACB(double x, double y, slong ip) : intprec(ip) {
-                ^~~~~~~~~~~~~~~~~~
-/home/orebas/FG1/./arbxx.hpp:237:24: note: the first parameter in the range is 'y'
-  ACB(double x, double y, slong ip) : intprec(ip) {
-                       ^
-/home/orebas/FG1/./arbxx.hpp:237:33: note: the last parameter in the range is 'ip'
-  ACB(double x, double y, slong ip) : intprec(ip) {
-                                ^~
-/home/orebas/FG1/./arbxx.hpp:237:17: note: 
-  ACB(double x, double y, slong ip) : intprec(ip) {
-                ^
-/home/orebas/FG1/./arbxx.hpp:237:27: note: 'double' and 'mp_limb_signed_t' may be implicitly converted: 'double' -> 'mp_limb_signed_t' (as 'long'), 'mp_limb_signed_t' (as 'long') -> 'double'
-  ACB(double x, double y, slong ip) : intprec(ip) {
-                          ^
-/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
-#define slong mp_limb_signed_t
-              ^
 /home/orebas/FG1/./arbxx.hpp:242:3: warning: constructor does not initialize these fields: c [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
   ACB(const ARB &r) : intprec(r.intprec) {
   ^
@@ -178,24 +79,6 @@ clang-tidy  -header-filter=.*.hpp --checks=*,-llvmlibc-*,-readability-identifier
 /home/orebas/FG1/./arbxx.hpp:274:3: warning: constructor does not initialize these fields: c [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
   ACB(int a, int b, slong ip) : intprec(ip) {
   ^
-/home/orebas/FG1/./arbxx.hpp:274:14: warning: 2 adjacent parameters of 'ACB' of convertible types are easily swapped by mistake [bugprone-easily-swappable-parameters]
-  ACB(int a, int b, slong ip) : intprec(ip) {
-             ^~~~~~~~~~~~~~~
-/home/orebas/FG1/./arbxx.hpp:274:18: note: the first parameter in the range is 'b'
-  ACB(int a, int b, slong ip) : intprec(ip) {
-                 ^
-/home/orebas/FG1/./arbxx.hpp:274:27: note: the last parameter in the range is 'ip'
-  ACB(int a, int b, slong ip) : intprec(ip) {
-                          ^~
-/home/orebas/FG1/./arbxx.hpp:274:14: note: 
-  ACB(int a, int b, slong ip) : intprec(ip) {
-             ^
-/home/orebas/FG1/./arbxx.hpp:274:21: note: 'int' and 'mp_limb_signed_t' may be implicitly converted: 'int' -> 'mp_limb_signed_t' (as 'long'), 'mp_limb_signed_t' (as 'long') -> 'int'
-  ACB(int a, int b, slong ip) : intprec(ip) {
-                    ^
-/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
-#define slong mp_limb_signed_t
-              ^
 /home/orebas/FG1/./arbxx.hpp:284:3: warning: constructor does not initialize these fields: c [cppcoreguidelines-pro-type-member-init,hicpp-member-init]
   ACB(const mpc_t &p, slong local_prec) : intprec(local_prec) {
   ^
@@ -316,18 +199,6 @@ clang-tidy  -header-filter=.*.hpp --checks=*,-llvmlibc-*,-readability-identifier
   ACB getCoeff(slong k) const {
   ^
   [[nodiscard]] 
-/home/orebas/FG1/./arbxx.hpp:597:39: warning: 2 adjacent parameters of 'getCoeffMPC' of similar type ('mp_limb_signed_t') are easily swapped by mistake [bugprone-easily-swappable-parameters]
-  void getCoeffMPC(mpc_t &GMPComplex, slong k, slong prec) const {
-                                      ^
-/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
-#define slong mp_limb_signed_t
-              ^
-/home/orebas/FG1/./arbxx.hpp:597:45: note: the first parameter in the range is 'k'
-  void getCoeffMPC(mpc_t &GMPComplex, slong k, slong prec) const {
-                                            ^
-/home/orebas/FG1/./arbxx.hpp:597:54: note: the last parameter in the range is 'prec'
-  void getCoeffMPC(mpc_t &GMPComplex, slong k, slong prec) const {
-                                                     ^~~~
 /home/orebas/FG1/./arbxx.hpp:599:5: warning: 'auto rearf' can be declared as 'auto *rearf' [llvm-qualified-auto,readability-qualified-auto]
     auto rearf = arb_midref(acb_realref(coeff.c));
     ^~~~~
@@ -781,18 +652,6 @@ void temp_print(mps_context *local_s, mps_polynomial *poly) {
 /home/orebas/FG1/benchmark.cpp:375:33: warning: do not use reinterpret_cast [cppcoreguidelines-pro-type-reinterpret-cast]
   mps_monomial_poly *mon_poly = reinterpret_cast<mps_monomial_poly *>(poly);
                                 ^
-/home/orebas/FG1/benchmark.cpp:399:28: warning: 3 adjacent parameters of 'powersums' of similar type ('mp_limb_signed_t') are easily swapped by mistake [bugprone-easily-swappable-parameters]
-std::vector<ACB> powersums(slong depth, slong max_k, slong prec) {
-                           ^
-/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
-#define slong mp_limb_signed_t
-              ^
-/home/orebas/FG1/benchmark.cpp:399:34: note: the first parameter in the range is 'depth'
-std::vector<ACB> powersums(slong depth, slong max_k, slong prec) {
-                                 ^~~~~
-/home/orebas/FG1/benchmark.cpp:399:60: note: the last parameter in the range is 'prec'
-std::vector<ACB> powersums(slong depth, slong max_k, slong prec) {
-                                                           ^~~~
 /home/orebas/FG1/benchmark.cpp:424:3: note: inferred assignment of ID-dependent value from ID-dependent  [altera-id-dependent-backward-branch]
   ComplexPoly acb_style_poly = ComplexPoly(local_s, local_poly, prec);
   ^
@@ -821,22 +680,6 @@ std::vector<ACB> powersums(slong depth, slong max_k, slong prec) {
   struct {
   ^
 /home/orebas/FG1/benchmark.cpp:498:3: note: use "__attribute__((aligned(0)))" to align struct '' to 0 bytes
-/home/orebas/FG1/benchmark.cpp:504:11: warning: implicit conversion 'int' -> bool [readability-implicit-bool-conversion]
-      if (arb_lt(a.abs().r, b.abs().r)) {
-          ^
-                                       != 0
-/home/orebas/FG1/benchmark.cpp:507:11: warning: implicit conversion 'int' -> bool [readability-implicit-bool-conversion]
-      if (arb_gt(a.abs().r, b.abs().r)) {
-          ^
-                                       != 0
-/home/orebas/FG1/benchmark.cpp:514:11: warning: implicit conversion 'int' -> bool [readability-implicit-bool-conversion]
-      if (arb_lt(arg1.r, arg2.r)) {
-          ^
-                                 != 0
-/home/orebas/FG1/benchmark.cpp:517:11: warning: implicit conversion 'int' -> bool [readability-implicit-bool-conversion]
-      if (arb_gt(arg1.r, arg2.r)) {
-          ^
-                                 != 0
 /home/orebas/FG1/benchmark.cpp:524:3: warning: accessing fields in struct '' is inefficient due to poor alignment; currently aligned to 1 bytes, but recommended alignment is 0 bytes [altera-struct-pack-align]
   struct {
   ^
@@ -891,12 +734,8 @@ std::vector<ACB> powersums(slong depth, slong max_k, slong prec) {
 #define MPS_POLYNOMIAL_CAST(typename, t) ((typename*)(mps_polynomial_cast (# typename, (mps_polynomial*)t)))
                                           ^
 /home/orebas/FG1/benchmark.cpp:633:16: warning: 2000 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
-  slong prec = 2000; // TODO MAGIC NUMBER
+  slong prec = 2000; // TODO(orebas) MAGIC NUMBER
                ^
-/home/orebas/FG1/benchmark.cpp:633:22: warning: missing username/bug in TODO [google-readability-todo]
-  slong prec = 2000; // TODO MAGIC NUMBER
-                     ^~~~~~~~~~~~~~~~~~~~
-                     // TODO(orebas): MAGIC NUMBER
 /home/orebas/FG1/benchmark.cpp:635:3: warning: multiple declarations in a single statement reduces readability [readability-isolate-declaration]
   std::vector<ComplexPoly> pvec, qvec;
   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -930,18 +769,6 @@ std::vector<ACB> powersums(slong depth, slong max_k, slong prec) {
 /home/orebas/FG1/benchmark.cpp:679:9: warning: member variable 'xpower' has public visibility [misc-non-private-member-variables-in-classes]
   slong xpower;
         ^
-/home/orebas/FG1/benchmark.cpp:688:29: warning: 2 adjacent parameters of 'pprime_over_p_integrand' of similar type ('mp_limb_signed_t') are easily swapped by mistake [bugprone-easily-swappable-parameters]
-                            slong order, slong prec) {
-                            ^
-/usr/include/flint/flint.h:88:15: note: expanded from macro 'slong'
-#define slong mp_limb_signed_t
-              ^
-/home/orebas/FG1/benchmark.cpp:688:35: note: the first parameter in the range is 'order'
-                            slong order, slong prec) {
-                                  ^~~~~
-/home/orebas/FG1/benchmark.cpp:688:48: note: the last parameter in the range is 'prec'
-                            slong order, slong prec) {
-                                               ^~~~
 /home/orebas/FG1/benchmark.cpp:688:35: warning: parameter 'order' is unused [misc-unused-parameters]
                             slong order, slong prec) {
                                   ^~~~~
