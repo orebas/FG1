@@ -200,6 +200,56 @@ void *cleanup_context(mpscp ctx, void *user_data, mps_polynomial *poly,
   return nullptr;
 }
 
+void PolfileToJson(const std::string &polfilename) {
+  mps_context *local_s = nullptr;
+  mps_polynomial *local_poly = nullptr;
+  slong input_precision = -1;
+  char *inline_poly = nullptr;
+
+  FILE *infile = nullptr;
+  mps_phase phase = no_phase;
+
+  mps_boolean explicit_algorithm_selection = false;
+  infile = fopen(polfilename.c_str(), "re");
+  if (infile == nullptr) {
+    mps_error(local_s, "Cannot open input file for read, aborting.");
+    mps_print_errors(local_s);
+    return; // EXIT_FAILURE;
+  }
+
+  /* Parse the input stream and if a polynomial is given as output,
+   * allocate also a secular equation to be used in regeneration */
+  local_poly = mps_parse_stream(local_s, infile);
+
+  if (local_poly == nullptr) {
+    mps_error(local_s, "Error while parsing the polynomial, aborting.");
+    mps_print_errors(local_s);
+    return; // EXIT_FAILURE;
+  } else {
+    mps_context_set_input_poly(local_s, local_poly);
+  }
+
+  if (input_precision >= 0) {
+    mps_polynomial_set_input_prec(local_s, local_poly,
+                                  2000); // TODO(orebas) MAGIC NUMBER
+  }
+  if (!explicit_algorithm_selection) {
+    mps_context_select_algorithm(local_s,
+                                 (MPS_IS_MONOMIAL_POLY(local_poly) &&
+                                  MPS_DENSITY_IS_SPARSE(local_poly->density))
+                                     ? MPS_ALGORITHM_STANDARD_MPSOLVE
+                                     : MPS_ALGORITHM_SECULAR_GA);
+  }
+  /* Close the file if it's not stdin */
+  if (inline_poly == nullptr) {
+    (void)fclose(infile);
+  }
+
+  mps_context_set_starting_phase(local_s, phase);
+
+  saveJSON(local_s, local_poly, polfilename);
+}
+
 void parsePol(const std::string &polfilename) {
   mps_context *local_s = nullptr;
   mps_polynomial *local_poly = nullptr;
@@ -408,6 +458,17 @@ std::vector<ACB> powersums(slong depth, slong max_k, slong prec) {
   }
   return results;
 }
+
+void saveJSON(mps_context *local_s, mps_polynomial *poly_local_poly,
+              const std::string &polfilename) {
+  mps_monomial_poly *local_poly =
+      MPS_POLYNOMIAL_CAST(mps_monomial_poly, poly_local_poly);
+  mps_context_set_output_prec(local_s, desired_prec);
+  mps_context_set_output_goal(local_s, MPS_OUTPUT_GOAL_APPROXIMATE);
+  slong prec = 2000; // TODO(orebas) MAGIC NUMBER
+  ComplexPoly acb_style_poly = ComplexPoly(local_s, local_poly, prec);
+}
+
 void solveCompare(mps_context *local_s, mps_polynomial *poly_local_poly,
                   const std::string &polfilename) {
   mps_monomial_poly *local_poly =
@@ -501,7 +562,7 @@ void solveCompare(mps_context *local_s, mps_polynomial *poly_local_poly,
       // ARF r = b.abs_ubound_arf();
       // int i = arf_cmp(l.f, r.f);
       // return i < 0;
-      if (arb_lt(a.abs().r, b.abs().r)!=0) {
+      if (arb_lt(a.abs().r, b.abs().r) != 0) {
         return true;
       }
       if (arb_gt(a.abs().r, b.abs().r) != 0) {
