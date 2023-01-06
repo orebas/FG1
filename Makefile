@@ -18,7 +18,7 @@ benchmark-fast: benchmark.cpp benchmark.hpp arbxx.hpp
 	$(CPP) $(CFLAGS) -I./MPSolve/include  -L ./MPSolve/libmps  -O3 -march=native benchmark.cpp   -o benchmark-fast $(LIBS) -lmps
 
 benchmark-clang:benchmark.cpp benchmark.hpp arbxx.hpp
-	clang $(CFLAGS) -Wno-register -I./MPSolve/include -L ./MPSolve/libmps -ggdb     -O0 benchmark.cpp   -o benchmark-clang $(LIBS) -lmps  -lstdc++ -lm -ldl
+	clang++ $(CFLAGS) -Wno-register -I./MPSolve/include -L ./MPSolve/libmps -ggdb     -O0 benchmark.cpp   -o benchmark-clang $(LIBS) -lmps  -lstdc++ -lm -ldl
 
 benchmark-prof: benchmark.cpp benchmark.hpp arbxx.hpp
 	$(CPP) $(CFLAGS) -I./MPSolve/include  -L ./MPSolve/libmps -g -pg  -O3 -march=native benchmark.cpp   -o benchmark-prof $(LIBS) -lmps

@@ -9,6 +9,7 @@
 #include <memory>
 #include <utility>
 
+//#include "mpreal.h" this needs to be incuded before all the arb/flint stuff
 #include "acb_calc.h"
 #include "acb_poly.h"
 #include "arb.h"
@@ -467,6 +468,7 @@ void saveJSON(mps_context *local_s, mps_polynomial *poly_local_poly,
   mps_context_set_output_goal(local_s, MPS_OUTPUT_GOAL_APPROXIMATE);
   slong prec = 2000; // TODO(orebas) MAGIC NUMBER
   ComplexPoly acb_style_poly = ComplexPoly(local_s, local_poly, prec);
+
 }
 
 void solveCompare(mps_context *local_s, mps_polynomial *poly_local_poly,
