@@ -296,7 +296,7 @@ public:
   }
 };
 
-template <typename T>
+/*template <typename T>
 std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
   if (!v.empty()) {
     out << '[';
@@ -305,7 +305,7 @@ std::ostream &operator<<(std::ostream &out, const std::vector<T> &v) {
   }
   out << std::endl;
   return out;
-}
+}*/  //moved to jsonpoly.hpp
 
 template <typename T, size_t s>
 std::ostream &operator<<(std::ostream &out, const std::array<T, s> &v) {
