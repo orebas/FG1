@@ -1,0 +1,117 @@
+In file included from json-test.cpp:3:
+In file included from /usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/iterator:65:
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stream_iterator.h:244:13: error: invalid operands to binary expression ('std::ostream_iterator<std::pair<double, double>>::ostream_type' (aka 'basic_ostream<char, std::char_traits<char>>') and 'const std::pair<double, double>')
+        *_M_stream << __value;
+        ~~~~~~~~~~ ^  ~~~~~~~
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algobase.h:385:18: note: in instantiation of member function 'std::ostream_iterator<std::pair<double, double>>::operator=' requested here
+              *__result = *__first;
+                        ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algobase.h:495:22: note: in instantiation of function template specialization 'std::__copy_move<false, false, std::random_access_iterator_tag>::__copy_m<const std::pair<double, double> *, std::ostream_iterator<std::pair<double, double>>>' requested here
+                              _Category>::__copy_m(__first, __last, __result);
+                                          ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algobase.h:522:19: note: in instantiation of function template specialization 'std::__copy_move_a2<false, const std::pair<double, double> *, std::ostream_iterator<std::pair<double, double>>>' requested here
+    { return std::__copy_move_a2<_IsMove>(__first, __last, __result); }
+                  ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algobase.h:530:8: note: in instantiation of function template specialization 'std::__copy_move_a1<false, const std::pair<double, double> *, std::ostream_iterator<std::pair<double, double>>>' requested here
+                std::__copy_move_a1<_IsMove>(std::__niter_base(__first),
+                     ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algobase.h:619:19: note: in instantiation of function template specialization 'std::__copy_move_a<false, __gnu_cxx::__normal_iterator<const std::pair<double, double> *, std::vector<std::pair<double, double>>>, std::ostream_iterator<std::pair<double, double>>>' requested here
+      return std::__copy_move_a<__is_move_iterator<_II>::__value>
+                  ^
+json-test.cpp:15:10: note: in instantiation of function template specialization 'std::copy<__gnu_cxx::__normal_iterator<const std::pair<double, double> *, std::vector<std::pair<double, double>>>, std::ostream_iterator<std::pair<double, double>>>' requested here
+    std::copy(v.begin(), v.end(), std::ostream_iterator<T>(out, ", "));
+         ^
+json-test.cpp:66:15: note: in instantiation of function template specialization 'operator<<<std::pair<double, double>>' requested here
+    std::cout << cdvec << std::endl;
+              ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/system_error:279:5: note: candidate function template not viable: no known conversion from 'const std::pair<double, double>' to 'const std::error_code' for 2nd argument
+    operator<<(basic_ostream<_CharT, _Traits>& __os, const error_code& __e)
+    ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:517:5: note: candidate function template not viable: no known conversion from 'const std::pair<double, double>' to 'char' for 2nd argument
+    operator<<(basic_ostream<_CharT, _Traits>& __out, char __c)
+    ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:523:5: note: candidate function template not viable: no known conversion from 'const std::pair<double, double>' to 'char' for 2nd argument
+    operator<<(basic_ostream<char, _Traits>& __out, char __c)
+    ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:534:5: note: candidate function template not viable: no known conversion from 'const std::pair<double, double>' to 'signed char' for 2nd argument
+    operator<<(basic_ostream<char, _Traits>& __out, signed char __c)
+    ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:539:5: note: candidate function template not viable: no known conversion from 'const std::pair<double, double>' to 'unsigned char' for 2nd argument
+    operator<<(basic_ostream<char, _Traits>& __out, unsigned char __c)
+    ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:615:5: note: candidate function template not viable: no known conversion from 'const std::pair<double, double>' to 'const char *' for 2nd argument
+    operator<<(basic_ostream<char, _Traits>& __out, const char* __s)
+    ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:628:5: note: candidate function template not viable: no known conversion from 'const std::pair<double, double>' to 'const signed char *' for 2nd argument
+    operator<<(basic_ostream<char, _Traits>& __out, const signed char* __s)
+    ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:633:5: note: candidate function template not viable: no known conversion from 'const std::pair<double, double>' to 'const unsigned char *' for 2nd argument
+    operator<<(basic_ostream<char, _Traits>& __out, const unsigned char* __s)
+    ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/ostream.tcc:302:5: note: candidate function template not viable: no known conversion from 'const std::pair<double, double>' to 'const char *' for 2nd argument
+    operator<<(basic_ostream<_CharT, _Traits>& __out, const char* __s)
+    ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:507:5: note: candidate template ignored: deduced conflicting types for parameter '_CharT' ('char' vs. 'std::pair<double, double>')
+    operator<<(basic_ostream<_CharT, _Traits>& __out, _CharT __c)
+    ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/basic_string.h:3883:5: note: candidate template ignored: could not match 'basic_string' against 'pair'
+    operator<<(basic_ostream<_CharT, _Traits>& __os,
+    ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:598:5: note: candidate template ignored: could not match 'const _CharT *' against 'std::pair<double, double>'
+    operator<<(basic_ostream<_CharT, _Traits>& __out, const _CharT* __s)
+    ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:754:5: note: candidate template ignored: requirement '__and_<std::is_class<std::basic_ostream<char, std::char_traits<char>> &>, std::__not_<std::is_same<std::basic_ostream<char, std::char_traits<char>> &, std::ios_base>>, std::is_convertible<std::basic_ostream<char, std::char_traits<char>> *, std::ios_base *>>::value' was not satisfied [with _Ostream = std::basic_ostream<char> &, _Tp = std::pair<double, double>]
+    operator<<(_Ostream&& __os, const _Tp& __x)
+    ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:108:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'std::basic_ostream<char>::__ostream_type &(*)(std::basic_ostream<char>::__ostream_type &)' (aka 'basic_ostream<char, std::char_traits<char>> &(*)(basic_ostream<char, std::char_traits<char>> &)') for 1st argument
+      operator<<(__ostream_type& (*__pf)(__ostream_type&))
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:117:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'std::basic_ostream<char>::__ios_type &(*)(std::basic_ostream<char>::__ios_type &)' (aka 'basic_ios<char, std::char_traits<char>> &(*)(basic_ios<char, std::char_traits<char>> &)') for 1st argument
+      operator<<(__ios_type& (*__pf)(__ios_type&))
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:127:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'std::ios_base &(*)(std::ios_base &)' for 1st argument
+      operator<<(ios_base& (*__pf) (ios_base&))
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:166:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'long' for 1st argument
+      operator<<(long __n)
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:170:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'unsigned long' for 1st argument
+      operator<<(unsigned long __n)
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:174:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'bool' for 1st argument
+      operator<<(bool __n)
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:178:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'short' for 1st argument
+      operator<<(short __n);
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:181:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'unsigned short' for 1st argument
+      operator<<(unsigned short __n)
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:189:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'int' for 1st argument
+      operator<<(int __n);
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:192:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'unsigned int' for 1st argument
+      operator<<(unsigned int __n)
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:201:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'long long' for 1st argument
+      operator<<(long long __n)
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:205:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'unsigned long long' for 1st argument
+      operator<<(unsigned long long __n)
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:220:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'double' for 1st argument
+      operator<<(double __f)
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:224:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'float' for 1st argument
+      operator<<(float __f)
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:232:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'long double' for 1st argument
+      operator<<(long double __f)
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:245:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'const void *' for 1st argument; take the address of the argument with &
+      operator<<(const void* __p)
+      ^
+/usr/bin/../lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/ostream:283:7: note: candidate function not viable: no known conversion from 'const std::pair<double, double>' to 'std::basic_ostream<char>::__streambuf_type *' (aka 'basic_streambuf<char, std::char_traits<char>> *') for 1st argument
+      operator<<(__streambuf_type* __sb);
+      ^
+1 error generated.
