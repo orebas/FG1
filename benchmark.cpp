@@ -21,32 +21,12 @@
 #include "flint/profiler.h"
 #include "tabulate.hxx"
 
+#include "benchmark.hpp"
+
 #include "polyjson.hpp"
-
-#define _MPS_PRIVATE
-#include <cstring>
-#include <mps/mps.h>
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-constexpr auto MPSOLVE_GETOPT_STRING = "a:G:D:d::t:o:O:j:S:O:i:vl:bp:rs:c";
-
-#ifndef __WINDOWS
-#include <csignal>
-
-void status(int signal, mps_context *mps_c);
-
-#undef _MPS_PRIVATE
-#endif
 
 // #include "Hungarian.h"
 //  void * cleanup_context(mps_context *ctx, void *user_data);
-
-#include <benchmark.hpp>
-
-void timeSolvers(std::vector<ComplexPoly> pvec);
 
 int main(int argc, char **argv) {
   // mpfr_set_default_prec(3000);
@@ -182,78 +162,6 @@ void timeSolvers(std::vector<ComplexPoly> pvec) {
   std::cout << output_table << std::endl;
 }
 
-void *cleanup_context(mpscp ctx, void *user_data, mps_polynomial *poly,
-                      mpscp &s_to_zero, bool outp) {
-  /* Check for errors */
-  if (mps_context_has_errors(ctx)) {
-    mps_print_errors(ctx);
-    return nullptr;
-  }
-
-  /* Output the roots */
-  if (!outp) {
-    mps_output(ctx);
-  }
-  /* Free used data */
-  if (poly != nullptr) {
-    mps_polynomial_free(ctx, poly);
-  }
-  mps_context_free(ctx);
-
-  s_to_zero = nullptr;
-
-  return nullptr;
-}
-
-void PolfileToJson(const std::string &polfilename) {
-  mps_context *local_s = nullptr;
-  mps_polynomial *local_poly = nullptr;
-  slong input_precision = -1;
-  char *inline_poly = nullptr;
-
-  FILE *infile = nullptr;
-  mps_phase phase = no_phase;
-
-  mps_boolean explicit_algorithm_selection = false;
-  infile = fopen(polfilename.c_str(), "re");
-  if (infile == nullptr) {
-    mps_error(local_s, "Cannot open input file for read, aborting.");
-    mps_print_errors(local_s);
-    return; // EXIT_FAILURE;
-  }
-
-  /* Parse the input stream and if a polynomial is given as output,
-   * allocate also a secular equation to be used in regeneration */
-  local_poly = mps_parse_stream(local_s, infile);
-
-  if (local_poly == nullptr) {
-    mps_error(local_s, "Error while parsing the polynomial, aborting.");
-    mps_print_errors(local_s);
-    return; // EXIT_FAILURE;
-  } else {
-    mps_context_set_input_poly(local_s, local_poly);
-  }
-
-  if (input_precision >= 0) {
-    mps_polynomial_set_input_prec(local_s, local_poly,
-                                  2000); // TODO(orebas) MAGIC NUMBER
-  }
-  if (!explicit_algorithm_selection) {
-    mps_context_select_algorithm(local_s,
-                                 (MPS_IS_MONOMIAL_POLY(local_poly) &&
-                                  MPS_DENSITY_IS_SPARSE(local_poly->density))
-                                     ? MPS_ALGORITHM_STANDARD_MPSOLVE
-                                     : MPS_ALGORITHM_SECULAR_GA);
-  }
-  /* Close the file if it's not stdin */
-  if (inline_poly == nullptr) {
-    (void)fclose(infile);
-  }
-
-  mps_context_set_starting_phase(local_s, phase);
-
-  saveJSON(local_s, local_poly, polfilename);
-}
 
 void parsePol(const std::string &polfilename) {
   mps_context *local_s = nullptr;
@@ -423,55 +331,6 @@ void parsePol(const std::string &polfilename) {
   // END WILK20 DEBUGGING CODE
   */
   solveCompare(local_s, local_poly, polfilename);
-}
-
-void temp_print(mps_context *local_s, mps_polynomial *poly) {
-  // mps_monomial_poly *p = MPS_MONOMIAL_POLY(poly);
-  mps_monomial_poly *mon_poly = reinterpret_cast<mps_monomial_poly *>(poly);
-
-  std::cout << poly->degree << std::endl;
-  (void)fflush(stdout);
-  const int digits = 10;
-  for (int i = 0; i <= poly->degree; i++) {
-    rdpe_out(mon_poly->dap[i]);
-    std::cout << mon_poly->fap[i] << std::endl;
-    std::cout << mon_poly->fpr[i] << std::endl;
-    cplx_out(mon_poly->fpc[i]);
-    rdpe_out(mon_poly->dpr[i]);
-    cdpe_out(mon_poly->dpc[i]);
-    mpf_out_str(stdout, digits, 0, mon_poly->mfpr[i]);
-    mpc_out_str(stdout, digits, 0, mon_poly->mfpc[i]);
-
-    if (i < poly->degree) {
-      mpc_out_str(stdout, digits, 0, mon_poly->mfppc[i]);
-    }
-    mpq_out_str(stdout, digits, mon_poly->initial_mqp_r[i]);
-    mpq_out_str(stdout, digits, mon_poly->initial_mqp_i[i]);
-    std::cout << mon_poly->spar[i] << std::endl;
-  }
-}
-
-std::vector<ACB> powersums(slong depth, slong max_k, slong prec) {
-  std::vector<ACB> results;
-  for (int d = 0; d < depth + 1; d++) {
-    ACB temp(0, 0, prec);
-
-    for (int i = 1; i <= max_k; i++) {
-      temp += (ACB(i, 0, prec)).power(d);
-    }
-    results.push_back(temp);
-  }
-  return results;
-}
-
-void saveJSON(mps_context *local_s, mps_polynomial *poly_local_poly,
-              const std::string &polfilename) {
-  mps_monomial_poly *local_poly =
-      MPS_POLYNOMIAL_CAST(mps_monomial_poly, poly_local_poly);
-  mps_context_set_output_prec(local_s, desired_prec);
-  mps_context_set_output_goal(local_s, MPS_OUTPUT_GOAL_APPROXIMATE);
-  slong prec = 2000; // TODO(orebas) MAGIC NUMBER
-  ComplexPoly acb_style_poly = ComplexPoly(local_s, local_poly, prec);
 }
 
 void solveCompare(mps_context *local_s, mps_polynomial *poly_local_poly,
@@ -684,122 +543,4 @@ void solveCompare(mps_context *local_s, mps_polynomial *poly_local_poly,
   }
   mpc_vfree(results);
   cleanup_context(local_s, nullptr, MPS_POLYNOMIAL(local_poly), local_s, false);
-}
-
-void solveDebug(mps_context *local_s, mps_polynomial *poly_local_poly,
-                const std::string &polfilename) {
-  mps_monomial_poly *local_poly =
-      MPS_POLYNOMIAL_CAST(mps_monomial_poly, poly_local_poly);
-  /* Solve the polynomial */
-  auto func = [&]() -> void { mps_mpsolve(local_s); };
-
-  // ComplexPoly new_poly;
-  //  auto parsed_poly = ComplexPoly::from_mps_poly(mps_polynomial *
-  //  local_poly);
-  slong prec = 2000; // TODO(orebas) MAGIC NUMBER
-  ComplexPoly acb_style_poly = ComplexPoly(local_s, local_poly, prec);
-  std::vector<ComplexPoly> pvec, qvec;
-  // DLGFG(acb_style_poly, pvec, qvec, 90);
-  int depth = 40;
-  FGSolver FGS(acb_style_poly, depth);
-  FGS.generatePnQnPolynomials();
-  std::vector<std::vector<ARB>> radii(depth);
-  std::vector<std::vector<ACB>> rootapprox(depth);
-  FGS.DLGRadii(radii);
-  FGS.FGRoots(rootapprox);
-  std::cout << radii;
-  std::cout << rootapprox;
-  // std::cout << powersums(110, 20, 6000);
-  std::cout << "Begin RRE debugging" << std::endl;
-  RecursiveRadiiEstimator RRE(acb_style_poly);
-
-  /*for (int d = 0; d < 15; d++) {
-      std::cout << "RRE " << d << " " << std::endl;
-      FGS.pvec[d].print();
-      for (int n = 0; n <= acb_style_poly.degree(); n++) {
-          std::cout << RRE.calcCoeff(d, n);
-      }
-  }*/
-
-  for (int depth = 0; depth < 15; depth++) {
-    std::cout << depth << "[min]" << RRE.minRadius(depth);
-    std::cout << "[max]" << RRE.maxRadius(depth);
-  }
-
-  for (int depth = 0; depth < 15; depth++) {
-    std::cout << depth << "[minRoot]" << RRE.minRoot(depth);
-
-    std::cout << depth << "[minRoot]" << RRE.maxRoot(depth);
-  }
-
-  double initTime = measure<std::chrono::milliseconds>::execution(func);
-  (void)fflush(stdout);
-  std::cout << polfilename << " took " << initTime << "ms." << std::endl;
-  cleanup_context(local_s, nullptr, MPS_POLYNOMIAL(local_poly), local_s, false);
-}
-
-class integrand_parameters {
-public:
-  ComplexPoly p;
-  ARB r;
-  slong xpower;
-  integrand_parameters(const ComplexPoly &initpol, ARB radius, slong pow)
-      : p(initpol.intprec), r(0, radius.intprec), xpower(pow) {
-    p.explicitCopy(initpol);
-    arb_set(r.r, radius.r);
-  }
-};
-
-int pprime_over_p_integrand(acb_ptr out, const acb_t inp, void *paramsv,
-                            slong order, slong prec) {
-  // this is the integrand to evaluate integral p'/p, order-th derivative.
-  // inp goes from 0 to 1.
-
-  ACB a(0, 0, prec), b(0, 0, prec), z(0, 0, prec);
-  ACB inp_copy(0, 0, prec);
-  integrand_parameters *params =
-      reinterpret_cast<integrand_parameters *>(paramsv);
-  acb_set(inp_copy.c, inp);
-  acb_mul_2exp_si(inp_copy.c, inp_copy.c, 1); // inp *=2;
-  acb_exp_pi_i(z.c, inp_copy.c,
-               inp_copy.intprec);                // z = exp(2 * pi *i * inp)
-  acb_mul_arb(z.c, z.c, params->r.r, z.intprec); // z = r e ^(2 * pi * inp);
-
-  acb_poly_evaluate2(a.c, b.c, params->p.pol, z.c, params->p.intprec);
-  acb_div(out, b.c, a.c, b.intprec); // out = p'/p at re^(2 pi i inp)
-  acb_pow_si(z.c, z.c, params->xpower, z.intprec);
-  acb_div(out, out, z.c, z.intprec); // return p'(z)/p(z)z^n
-
-  return 0;
-}
-
-// below approximates first depth derivatives of pprime/p via cauchy
-// integral formula
-void DerivEst(std::vector<ACB> &results, const ComplexPoly &p, ARB minrad,
-              std::size_t depth) {
-  mag_t tol;
-  acb_calc_integrate_opt_t options;
-
-  acb_calc_integrate_opt_init(options);
-
-  slong prec = p.intprec; // p.intprec;
-  slong goal = prec;
-  mag_init(tol);
-  mag_set_ui_2exp_si(tol, 1, -prec);
-
-  ACB deriv_est(0, 0, prec);
-  results.resize(depth + 1, ACB(0, 0, prec));
-  integrand_parameters params(p, minrad, 0);
-  ACB start(0, 0, prec);
-  ACB end(1, 0, prec);
-  auto func(&pprime_over_p_integrand);
-  for (std::size_t k = 0; k <= depth; k++) {
-    params.xpower = k;
-    acb_calc_integrate(deriv_est.c, func, &params, start.c, end.c, goal, tol,
-                       options, prec);
-    fmpz_t fact;
-    fmpz_fac_ui(fact, k);
-    acb_mul_fmpz(deriv_est.c, deriv_est.c, fact, deriv_est.intprec);
-    results[k].explicitCopy(deriv_est);
-  }
 }

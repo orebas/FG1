@@ -14,6 +14,11 @@ LIBS =   -lflint -lflint-arb -lgmp -lmpfr
 benchmark: benchmark.cpp benchmark.hpp arbxx.hpp
 	$(CPP) $(CFLAGS) -I./MPSolve/include -L ./MPSolve/libmps -ggdb     -O0 benchmark.cpp   -o benchmark $(LIBS) -lmps
 
+
+benchmark-iwyu: benchmark.cpp benchmark.hpp arbxx.hpp
+	include-what-you-use $(CFLAGS) -Wno-register -I./MPSolve/include -L ./MPSolve/libmps -ggdb     -O0 benchmark.cpp   -o benchmark-clang $(LIBS) -lmps  -lstdc++ -lm -ldl
+
+
 benchmark-fast: benchmark.cpp benchmark.hpp arbxx.hpp
 	$(CPP) $(CFLAGS) -I./MPSolve/include  -L ./MPSolve/libmps  -O3 -march=native benchmark.cpp   -o benchmark-fast $(LIBS) -lmps
 
@@ -25,6 +30,10 @@ benchmark-prof: benchmark.cpp benchmark.hpp arbxx.hpp
 
 benchmark-lint: benchmark.cpp benchmark.hpp arbxx.hpp
 	clang-tidy  -header-filter=.*.hpp --checks=*,-bugprone-easily-swappable-parameters,-llvmlibc-*,-readability-identifier-length,-fuchsia-overloaded-operator,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-modernize-use-trailing-return-type,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-hicpp-no-array-decay,-altera-unroll-loops,-fuchsia-default-arguments-calls benchmark.cpp   -- -I. -I./MPSolve/include  --std=c++2a -Wno-register    
+
+polyjson:  benchmark.hpp arbxx.hpp polyjson.cpp
+	$(CPP) $(CFLAGS) -I./MPSolve/include -L ./MPSolve/libmps -ggdb     -O0 polyjson.cpp   -o polyjson $(LIBS) -lmps
+
 
 #-fsanitize=undefined -fno-sanitize-recover=all -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fno-sanitize=null -fno-sanitize=alignment 
 benchmark-asan: benchmark.cpp benchmark.hpp arbxx.hpp

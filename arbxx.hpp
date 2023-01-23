@@ -764,46 +764,4 @@ ARB inline L2Norm(std::vector<ACB> v1, std::vector<ACB> v2, slong prec) {
   }
   return result;
 }
-//see complexPoly constructor with same arguments for some more comments.
-std::vector<std::complex<mpfr::mpreal>> PolFileToMPRealVector(mps_context *s, mps_monomial_poly *p, slong wp){
-mpfr::mpreal::set_default_prec(3000); //TODO(orebas): magic number
-rdpe_t u;
-    // cdpe_t cx;
-std::vector<std::complex<mpfr::mpreal>> results;
-    pthread_mutex_lock(&p->mfpc_mutex[0]);
-    if (mpc_get_prec(p->mfpc[0]) < wp) {
-      std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
-                << std::endl;
-      pthread_mutex_unlock(&p->mfpc_mutex[0]);
-      mps_monomial_poly_raise_precision(s, MPS_POLYNOMIAL(p), wp);
-      std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
-                << std::endl;
-    } else {
-      pthread_mutex_unlock(&p->mfpc_mutex[0]);
-    }
-    
-    /* Set 4 * machine precision in u */
-    rdpe_set_2dl(u, 1.0, 2 - wp);
-
-    slong local_prec =
-        std::max(mpf_get_prec(p->mfpc[0]->r), mpf_get_prec(p->mfpc[0]->i));
-    local_prec = std::max(local_prec, wp);
-    mpfr_set_default_prec(local_prec);
-    mpfr_t mpfrre;
-    mpfr_t mpfrim;
-    mpfr_init2(mpfrre, local_prec);
-    mpfr_init2(mpfrim, local_prec);
-    
-    
-    for (int j = 0; j <= MPS_POLYNOMIAL(p)->degree; j++) {
-      mpfr_set_f(mpfrre, (p->mfpc[j])->r, MPFR_RNDN);
-      mpfr_set_f(mpfrim, (p->mfpc[j])->i, MPFR_RNDN);
-      mpfr::mpreal mprealre(mpfrre);  //make sure the default precision is ok?
-      mpfr::mpreal mprealim(mpfrim);
-      std::complex<mpfr::mpreal> coeff;
-      results.push_back(coeff);
-    }
-    mpfr_clear(mpfrre);
-    mpfr_clear(mpfrim);
-     
-}
+// see complexPoly constructor with same arguments for some more comments.
