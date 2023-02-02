@@ -751,6 +751,20 @@ ComplexPoly polyFromRoots(std::vector<T> vec, slong precision) {
   return p;
 }
 
+
+template <class T = double>
+ComplexPoly polyFromVec(std::vector<T> vec, slong precision) {
+  ComplexPoly p(precision);
+  acb_poly_fit_length(p.pol,vec.size());
+  auto length = vec.size();
+  for (std::size_t i = 0; i < length; i++) {
+    acb_poly_set_coeff_acb(p.pol,i,ACB(vec[i]).c);
+    }
+  return p;
+}
+
+
+
 ARB inline L2Norm(std::vector<ACB> v1, std::vector<ACB> v2, slong prec) {
   std::size_t n = v1.size();
   assert(v2.size() == n);
@@ -764,4 +778,34 @@ ARB inline L2Norm(std::vector<ACB> v1, std::vector<ACB> v2, slong prec) {
   }
   return result;
 }
+
+
+ARB inline L1Norm(std::vector<ACB> v1, std::vector<ACB> v2, slong prec) {
+  std::size_t n = v1.size();
+  assert(v2.size() == n);
+  if (n == 0) {
+    return ARB(0, prec);
+  }
+  ARB result = ARB(0.0, prec);
+  for (std::size_t i = 0; i < n; i++) {
+    ARB temp = (v1[i] - v2[i]).abs();
+    result += temp;
+  }
+  return result;
+}
+
+ARB inline L1Norm(std::vector<ACB> v1,  slong prec) {
+  std::size_t n = v1.size();
+  if (n == 0) {
+    return ARB(0, prec);
+  }
+  ARB result = ARB(0.0, prec);
+  for (std::size_t i = 0; i < n; i++) {
+    ARB temp = (v1[i] ).abs();
+    result += temp;
+  }
+  return result;
+}
+
+
 // see complexPoly constructor with same arguments for some more comments.

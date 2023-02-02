@@ -101,8 +101,32 @@ void parsePol2(const std::string &polfilename) {
   ComplexPoly acb_style_poly = ComplexPoly(local_s, plocal_poly, prec);
 }
 
-int main(int argc, char **argv) {
+void deleteme(){
+  std::random_device rd; // TODO(orebas) make this a static object and only
+                           // have one generator
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<double> dist(-1.0, 1.0);
+    
+  const int d = 10;
+  const int tests=30;
+  const int prec = 200;
+  std::vector<std::vector<ACB>> bmatrix(tests, std::vector<ACB>(0, ACB(0,0,prec)));
+  for(int i=0;i<tests;i++){
+    for(int j=0;j<d;j++){
+    auto xd = dist(rd);
+    ACB cc(dist(rd),dist(rd), prec);
+    bmatrix[i].push_back(cc);
+      } 
+      ARB norm = L1Norm( bmatrix[i],prec);
+    for(int j=0;j<d;j++){
+      bmatrix[i][j] /= ACB(norm);
+    }  
+  }
+std::cout << bmatrix << std::endl;
+}
 
+int main(int argc, char **argv) {
+   deleteme();
   for (auto const &dir_entry : std::filesystem::directory_iterator{"."}) {
     if (dir_entry.path().extension() == ".pol") {
       // std::cout << dir_entry << " " << dir_entry.path().extension() <<
