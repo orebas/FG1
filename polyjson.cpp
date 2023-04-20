@@ -3,14 +3,9 @@
 #include "benchmark.hpp"
 #include <iostream>
 
-struct polyjson {
-  std::vector<std::pair<mpfr::mpreal, mpfr::mpreal>> coeffs;
-  bool sparse;
-  std::vector<long int> sparse_indices;
-  std::string filename;
-};
 
 void parsePol2(const std::string &polfilename) {
+  std::cout << "test\n";
   mps_context *local_s = nullptr;
   mps_polynomial *local_poly = nullptr;
 
@@ -132,6 +127,7 @@ int main(int argc, char **argv) {
       // std::cout << dir_entry << " " << dir_entry.path().extension() <<
       // std::endl;
       parsePol2(dir_entry.path().string());
+PolfileToJson(dir_entry.path().string());
     }
     // std::cout << dir_entry << " " << dir_entry.path().extension() <<
     // std::endl;

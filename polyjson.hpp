@@ -14,6 +14,9 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
+std::pair< std::vector<mpfr::mpreal>, std::vector<mpfr::mpreal>>
+PolToMPRealVectors(mps_context *s, mps_monomial_poly *p, slong wp) ;
+
 namespace mpfr {
 void to_json(json &j, const mpreal &p) { j = json(p.toString()); }
 
@@ -24,6 +27,20 @@ void from_json(const json &j, mpreal &p) {
 }
 }; // namespace mpfr
 
+
+
+struct polyjson {
+  std::vector<mpfr::mpreal> RealCoefficients;
+  std::vector<mpfr::mpreal> ImagCoefficients;
+  
+  bool sparse;
+  std::vector<long int> sparse_indices;
+  std::string filename;
+          NLOHMANN_DEFINE_TYPE_INTRUSIVE(polyjson, RealCoefficients, ImagCoefficients, sparse,sparse_indices,filename);
+
+};
+
+
 void saveJSON(mps_context *local_s, mps_polynomial *poly_local_poly,
               const std::string &polfilename) {
   const int desired_prec = 10000;
@@ -33,11 +50,26 @@ void saveJSON(mps_context *local_s, mps_polynomial *poly_local_poly,
   mps_context_set_output_goal(local_s, MPS_OUTPUT_GOAL_APPROXIMATE);
   slong prec = 2000; // TODO(orebas) MAGIC NUMBER
   ComplexPoly acb_style_poly = ComplexPoly(local_s, local_poly, prec);
+
+auto poly_vectors = PolToMPRealVectors(local_s, local_poly, desired_prec);
+std::cout << poly_vectors.first << poly_vectors.second << std::endl;
+polyjson to_save;
+to_save.RealCoefficients=poly_vectors.first;
+to_save.ImagCoefficients=poly_vectors.second;
+to_save.sparse=false;
+to_save.filename = polfilename + ".json";
+json j1(to_save);
+std::cout << j1 << std::endl;
+std::ofstream fileoutput(to_save.filename);
+fileoutput << j1 << std::endl;
+fileoutput.close();
+
 }
 
 void PolfileToJson(const std::string &polfilename) {
   mps_context *local_s = nullptr;
   mps_polynomial *local_poly = nullptr;
+  local_s = mps_context_new();
   slong input_precision = -1;
   char *inline_poly = nullptr;
 
@@ -85,12 +117,13 @@ void PolfileToJson(const std::string &polfilename) {
   saveJSON(local_s, local_poly, polfilename);
 }
 
-std::vector<std::complex<mpfr::mpreal>>
-PolFileToMPRealVector(mps_context *s, mps_monomial_poly *p, slong wp) {
-  mpfr::mpreal::set_default_prec(3000); // TODO(orebas): magic number
+std::pair< std::vector<mpfr::mpreal>, std::vector<mpfr::mpreal>>
+PolToMPRealVectors(mps_context *s, mps_monomial_poly *p, slong wp) {
+  mpfr::mpreal::set_default_prec(wp); 
   rdpe_t u;
   // cdpe_t cx;
-  std::vector<std::complex<mpfr::mpreal>> results;
+  std::vector<mpfr::mpreal> resultsReal;
+  std::vector<mpfr::mpreal> resultsComplex;
   pthread_mutex_lock(&p->mfpc_mutex[0]);
   if (mpc_get_prec(p->mfpc[0]) < wp) {
     std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
@@ -121,8 +154,10 @@ PolFileToMPRealVector(mps_context *s, mps_monomial_poly *p, slong wp) {
     mpfr::mpreal mprealre(mpfrre); // make sure the default precision is ok?
     mpfr::mpreal mprealim(mpfrim);
     std::complex<mpfr::mpreal> coeff;
-    results.push_back(coeff);
+    resultsReal.push_back(mprealre);
+    resultsComplex.push_back(mprealim);
   }
   mpfr_clear(mpfrre);
   mpfr_clear(mpfrim);
+  return std::pair<std::vector<mpfr::mpreal>, std::vector<mpfr::mpreal>>(resultsReal,resultsComplex);
 }
