@@ -379,6 +379,65 @@ public:
     return l;
   }
 
+
+static struct {
+    bool operator()(const ACB &a, const ACB &b) const {
+      if (arb_lt(a.abs().r, b.abs().r) != 0) {
+        return true;
+      }
+      if (arb_gt(a.abs().r, b.abs().r) != 0) {
+        return false;
+      }
+      ARB arg1(0.0, a.intprec);
+      ARB arg2(0.0, b.intprec);
+      acb_arg(arg1.r, a.c, a.intprec);
+      acb_arg(arg2.r, b.c, a.intprec);
+      if (arb_lt(arg1.r, arg2.r) != 0) {
+        return true;
+      }
+      if (arb_gt(arg1.r, arg2.r) != 0) {
+        return false;
+      }
+      return false;
+    }
+  } customLess;
+
+  static struct {
+    bool operator()(const ACB &a, const ACB &b) const {
+      // ARF l = a.abs_ubound_arf();
+      // ARF r = b.abs_ubound_arf();
+      // int i = arf_cmp(l.f, r.f);
+      // return i < 0;
+
+      ARB re1(0.0, a.intprec);
+      ARB im1(0.0, b.intprec);
+
+      ARB re2(0.0, a.intprec);
+      ARB im2(0.0, b.intprec);
+
+      acb_get_real(re1.r, a.c);
+      acb_get_real(re2.r, b.c);
+      acb_get_imag(im1.r, a.c);
+      acb_get_imag(im2.r, b.c);
+
+      if (arb_lt(re1.r, re2.r)) {
+        return true;
+      }
+      if (arb_gt(re1.r, re2.r)) {
+        return false;
+      }
+      if (arb_lt(im1.r, im2.r)) {
+        return true;
+      }
+      if (arb_gt(im1.r, im2.r)) {
+        return false;
+      }
+      return false;
+    }
+  } customLessLex;
+
+
+
   ~ACB() {
     if (intprec > 0) {
       acb_clear(c);

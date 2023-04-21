@@ -2,6 +2,7 @@
 #include "arbxx.hpp"
 #include "benchmark.hpp"
 #include <iostream>
+#include <fmt/core.h>
 
 std::vector<ACB> MPSolvePolFile(const std::string &polfilename, slong prec);
 std::vector<ACB> solveMPSContext(mps_context *local_s,
@@ -125,6 +126,8 @@ void deleteme() {
   std::cout << bmatrix << std::endl;
 }
 
+void compareVectors(std:: string filename, std::vector<ACB> r1, std::vector<ACB> r2, slong prec);
+
 int main(int argc, char **argv) {
   // deleteme();
   for (auto const &dir_entry : std::filesystem::directory_iterator{"."}) {
@@ -140,12 +143,25 @@ int main(int argc, char **argv) {
           MPSolvePolFile(dir_entry.path().string(), prec);
       polyjson p = loadJson(jsonFileName);
       ComplexPoly poly = toComplexPoly(p);
-      auto jsonMPSRoots = poly.MPSolve(prec);
-      assert(jsonMPSRoots.size() == MPSRoots.size());
-      CompareVectors();
+      std::vector<ACB> rootsFromJson = poly.MPSolve(prec);
+      std::sort(rootsFromJson.begin(), rootsFromJson.end(),ACB::customLess);
+      std::sort(MPSRoots.begin(), MPSRoots.end(), ACB::customLess);
+      assert(rootsFromJson.size() == MPSRoots.size());
+      
+      compareVectors(jsonFileName, MPSRoots, rootsFromJson, prec);
+      
     }
   }
 }
+
+
+void compareVectors(std:: string filename, std::vector<ACB> r1, std::vector<ACB> r2, slong prec){
+//fmt::print("Solving {}", filename);  
+
+}
+
+
+
 
 std::vector<ACB> MPSolvePolFile(const std::string &polfilename, slong prec) {
   std::vector<ACB> return_empty;
