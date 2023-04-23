@@ -121,7 +121,7 @@ std::cout << bmatrix << std::endl;
 }
 
 int main(int argc, char **argv) {
-   deleteme();
+   //deleteme();
   for (auto const &dir_entry : std::filesystem::directory_iterator{"."}) {
     if (dir_entry.path().extension() == ".pol") {
       // std::cout << dir_entry << " " << dir_entry.path().extension() <<
