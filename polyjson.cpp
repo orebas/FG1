@@ -3,6 +3,10 @@
 #include "benchmark.hpp"
 #include <iostream>
 
+std::vector<ACB> MPSolvePolFile(const std::string &polfilename, slong prec);
+std::vector<ACB> solveMPSContext(mps_context *local_s,
+                                 mps_polynomial *poly_local_poly,
+                                 const std::string &polfilename, slong prec);
 
 void parsePol2(const std::string &polfilename) {
   std::cout << "test\n";
@@ -96,48 +100,56 @@ void parsePol2(const std::string &polfilename) {
   ComplexPoly acb_style_poly = ComplexPoly(local_s, plocal_poly, prec);
 }
 
-void deleteme(){
+void deleteme() {
   std::random_device rd; // TODO(orebas) make this a static object and only
-                           // have one generator
-    std::mt19937 mt(rd());
-    std::uniform_real_distribution<double> dist(-1.0, 1.0);
-    
+                         // have one generator
+  std::mt19937 mt(rd());
+  std::uniform_real_distribution<double> dist(-1.0, 1.0);
+
   const int d = 10;
-  const int tests=30;
+  const int tests = 30;
   const int prec = 200;
-  std::vector<std::vector<ACB>> bmatrix(tests, std::vector<ACB>(0, ACB(0,0,prec)));
-  for(int i=0;i<tests;i++){
-    for(int j=0;j<d;j++){
-    auto xd = dist(rd);
-    ACB cc(dist(rd),dist(rd), prec);
-    bmatrix[i].push_back(cc);
-      } 
-      ARB norm = L1Norm( bmatrix[i],prec);
-    for(int j=0;j<d;j++){
+  std::vector<std::vector<ACB>> bmatrix(tests,
+                                        std::vector<ACB>(0, ACB(0, 0, prec)));
+  for (int i = 0; i < tests; i++) {
+    for (int j = 0; j < d; j++) {
+      auto xd = dist(rd);
+      ACB cc(dist(rd), dist(rd), prec);
+      bmatrix[i].push_back(cc);
+    }
+    ARB norm = L1Norm(bmatrix[i], prec);
+    for (int j = 0; j < d; j++) {
       bmatrix[i][j] /= ACB(norm);
-    }  
+    }
   }
-std::cout << bmatrix << std::endl;
+  std::cout << bmatrix << std::endl;
 }
 
 int main(int argc, char **argv) {
-   //deleteme();
+  // deleteme();
   for (auto const &dir_entry : std::filesystem::directory_iterator{"."}) {
     if (dir_entry.path().extension() == ".pol") {
-      // std::cout << dir_entry << " " << dir_entry.path().extension() <<
-      // std::endl;
-      //parsePol2(dir_entry.path().string());
-      PolfileToJson(dir_entry.path().string());
-      MPSolvePolFile
+      slong prec = 200;
+      std::string jsonFileName = PolfileToJson(dir_entry.path().string());
+      if (jsonFileName.empty()) {
+        std::cout << "Error converting " << dir_entry.path().string()
+                  << std::endl;
+        break;
+      }
+      std::vector<ACB> mps_roots =
+          MPSolvePolFile(dir_entry.path().string(), prec);
+
+      std::ifstream jsonStream(jsonFileName);
+      json polyFromJson;
+      jsonStream >> polyFromJson;
+      polyjson j = polyFromJson.get<polyjson>();
     }
-    // std::cout << dir_entry << " " << dir_entry.path().extension() <<
-    // std::endl;
   }
 }
 
-
-
 std::vector<ACB> MPSolvePolFile(const std::string &polfilename, slong prec) {
+  std::vector<ACB> return_empty;
+
   mps_context *local_s = nullptr;
   mps_polynomial *local_poly = nullptr;
 
@@ -179,7 +191,7 @@ std::vector<ACB> MPSolvePolFile(const std::string &polfilename, slong prec) {
   if (infile == nullptr) {
     mps_error(local_s, "Cannot open input file for read, aborting.");
     mps_print_errors(local_s);
-    return; // EXIT_FAILURE;
+    return return_empty; // EXIT_FAILURE;
   }
 
   /* Parse the input stream and if a polynomial is given as output,
@@ -189,15 +201,14 @@ std::vector<ACB> MPSolvePolFile(const std::string &polfilename, slong prec) {
   if (local_poly == nullptr) {
     mps_error(local_s, "Error while parsing the polynomial, aborting.");
     mps_print_errors(local_s);
-    return; // EXIT_FAILURE;
+    return return_empty; // EXIT_FAILURE;
   } else {
     mps_context_set_input_poly(local_s, local_poly);
   }
-*/
   /* Override input precision if needed */
   if (input_precision >= 0) {
     mps_polynomial_set_input_prec(local_s, local_poly,
-                                  2000); // TODO(orebas) MAGIC NUMBER
+                                  prec); // TODO(orebas) MAGIC NUMBER
   }
   /* Perform some heuristic for the algorithm selection, but only if the
    * user hasn't explicitely selected one. */
@@ -220,9 +231,9 @@ std::vector<ACB> MPSolvePolFile(const std::string &polfilename, slong prec) {
   return solveMPSContext(local_s, local_poly, polfilename, prec);
 }
 
-
-std::vector<ACB> solveMPSContext(mps_context *local_s, mps_polynomial *poly_local_poly,
-                  const std::string &polfilename, slong prec) {
+std::vector<ACB> solveMPSContext(mps_context *local_s,
+                                 mps_polynomial *poly_local_poly,
+                                 const std::string &polfilename, slong prec) {
   mps_monomial_poly *local_poly =
       MPS_POLYNOMIAL_CAST(mps_monomial_poly, poly_local_poly);
 
@@ -233,15 +244,14 @@ std::vector<ACB> solveMPSContext(mps_context *local_s, mps_polynomial *poly_loca
   /* Solve the polynomial */
   auto funcMPS = [&]() -> void { mps_mpsolve(local_s); };
 
-  
   double mpsTime =
       measure<std::chrono::milliseconds>::execution(funcMPS); // runs mpsolve
-  
+
   (void)fflush(stdout);
   mpc_t *results = nullptr;
   mps_context_get_roots_m(local_s, &results, nullptr);
   std::vector<ACB> mps_roots;
-  for (slong rt = 0; rt < acb_style_poly.degree(); rt++) {
+  for (slong rt = 0; rt < poly_local_poly->degree; rt++) {
     mps_roots.emplace_back(ACB(results[rt], prec));
   }
 
@@ -269,7 +279,7 @@ std::vector<ACB> solveMPSContext(mps_context *local_s, mps_polynomial *poly_loca
 
   struct {
     bool operator()(const ACB &a, const ACB &b) const {
-  
+
       ARB re1(0.0, a.intprec);
       ARB im1(0.0, b.intprec);
 
@@ -298,12 +308,6 @@ std::vector<ACB> solveMPSContext(mps_context *local_s, mps_polynomial *poly_loca
   } customLessLex;
 
   std::sort(mps_roots.begin(), mps_roots.end(), customLessLex);
-  std::sort(RootSolver1Roots.begin(), RootSolver1Roots.end(), customLess);
-
-  std::vector<std::vector<ARB>> costMatrix;
-  slong matsize = mps_roots.size();
-  costMatrix.resize(matsize);
-  
   std::cout << polfilename << " took " << mpsTime << "ms. for MPS "
             << std::endl;
   std::cout << mps_roots.size() << std::endl;
@@ -311,6 +315,3 @@ std::vector<ACB> solveMPSContext(mps_context *local_s, mps_polynomial *poly_loca
   cleanup_context(local_s, nullptr, MPS_POLYNOMIAL(local_poly), local_s, false);
   return mps_roots;
 }
-
-
-

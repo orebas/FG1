@@ -14,8 +14,8 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-std::pair< std::vector<mpfr::mpreal>, std::vector<mpfr::mpreal>>
-PolToMPRealVectors(mps_context *s, mps_monomial_poly *p, slong wp) ;
+std::pair<std::vector<mpfr::mpreal>, std::vector<mpfr::mpreal>>
+PolToMPRealVectors(mps_context *s, mps_monomial_poly *p, slong wp);
 
 namespace mpfr {
 void to_json(json &j, const mpreal &p) { j = json(p.toString()); }
@@ -27,22 +27,21 @@ void from_json(const json &j, mpreal &p) {
 }
 }; // namespace mpfr
 
-
-
 struct polyjson {
   std::vector<mpfr::mpreal> RealCoefficients;
   std::vector<mpfr::mpreal> ImagCoefficients;
-  
+
   bool sparse;
   std::vector<long int> sparse_indices;
   std::string filename;
-          NLOHMANN_DEFINE_TYPE_INTRUSIVE(polyjson, RealCoefficients, ImagCoefficients, sparse,sparse_indices,filename);
-
+  NLOHMANN_DEFINE_TYPE_INTRUSIVE(polyjson, RealCoefficients, ImagCoefficients,
+                                 sparse, sparse_indices, filename);
 };
 
-
-void saveJSON(mps_context *local_s, mps_polynomial *poly_local_poly,
-              const std::string &polfilename) {
+ComplexPoly 
+// below returns the name of the file saved, or any empty string on failure.
+std::string saveJSON(mps_context *local_s, mps_polynomial *poly_local_poly,
+                     const std::string &polfilename) {
   const int desired_prec = 10000;
   mps_monomial_poly *local_poly =
       MPS_POLYNOMIAL_CAST(mps_monomial_poly, poly_local_poly);
@@ -51,22 +50,22 @@ void saveJSON(mps_context *local_s, mps_polynomial *poly_local_poly,
   slong prec = 2000; // TODO(orebas) MAGIC NUMBER
   ComplexPoly acb_style_poly = ComplexPoly(local_s, local_poly, prec);
 
-auto poly_vectors = PolToMPRealVectors(local_s, local_poly, desired_prec);
-std::cout << poly_vectors.first << poly_vectors.second << std::endl;
-polyjson to_save;
-to_save.RealCoefficients=poly_vectors.first;
-to_save.ImagCoefficients=poly_vectors.second;
-to_save.sparse=false;
-to_save.filename = polfilename + ".json";
-json j1(to_save);
-std::cout << j1 << std::endl;
-std::ofstream fileoutput(to_save.filename);
-fileoutput << j1 << std::endl;
-fileoutput.close();
-
+  auto poly_vectors = PolToMPRealVectors(local_s, local_poly, desired_prec);
+  std::cout << poly_vectors.first << poly_vectors.second << std::endl;
+  polyjson to_save;
+  to_save.RealCoefficients = poly_vectors.first;
+  to_save.ImagCoefficients = poly_vectors.second;
+  to_save.sparse = false;
+  to_save.filename = polfilename + ".json";
+  json j1(to_save);
+  std::cout << j1 << std::endl;
+  std::ofstream fileoutput(to_save.filename);
+  fileoutput << j1 << std::endl;
+  fileoutput.close();
+  return to_save.filename;
 }
 
-void PolfileToJson(const std::string &polfilename) {
+std::string PolfileToJson(const std::string &polfilename) {
   mps_context *local_s = nullptr;
   mps_polynomial *local_poly = nullptr;
   local_s = mps_context_new();
@@ -81,7 +80,7 @@ void PolfileToJson(const std::string &polfilename) {
   if (infile == nullptr) {
     mps_error(local_s, "Cannot open input file for read, aborting.");
     mps_print_errors(local_s);
-    return; // EXIT_FAILURE;
+    return ""; // EXIT_FAILURE;
   }
 
   /* Parse the input stream and if a polynomial is given as output,
@@ -91,7 +90,7 @@ void PolfileToJson(const std::string &polfilename) {
   if (local_poly == nullptr) {
     mps_error(local_s, "Error while parsing the polynomial, aborting.");
     mps_print_errors(local_s);
-    return; // EXIT_FAILURE;
+    return ""; // EXIT_FAILURE;
   } else {
     mps_context_set_input_poly(local_s, local_poly);
   }
@@ -114,12 +113,12 @@ void PolfileToJson(const std::string &polfilename) {
 
   mps_context_set_starting_phase(local_s, phase);
 
-  saveJSON(local_s, local_poly, polfilename);
+  return saveJSON(local_s, local_poly, polfilename);
 }
 
-std::pair< std::vector<mpfr::mpreal>, std::vector<mpfr::mpreal>>
+std::pair<std::vector<mpfr::mpreal>, std::vector<mpfr::mpreal>>
 PolToMPRealVectors(mps_context *s, mps_monomial_poly *p, slong wp) {
-  mpfr::mpreal::set_default_prec(wp); 
+  mpfr::mpreal::set_default_prec(wp);
   rdpe_t u;
   // cdpe_t cx;
   std::vector<mpfr::mpreal> resultsReal;
@@ -159,5 +158,6 @@ PolToMPRealVectors(mps_context *s, mps_monomial_poly *p, slong wp) {
   }
   mpfr_clear(mpfrre);
   mpfr_clear(mpfrim);
-  return std::pair<std::vector<mpfr::mpreal>, std::vector<mpfr::mpreal>>(resultsReal,resultsComplex);
+  return std::pair<std::vector<mpfr::mpreal>, std::vector<mpfr::mpreal>>(
+      resultsReal, resultsComplex);
 }
