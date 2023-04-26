@@ -129,20 +129,20 @@ int main(int argc, char **argv) {
   // deleteme();
   for (auto const &dir_entry : std::filesystem::directory_iterator{"."}) {
     if (dir_entry.path().extension() == ".pol") {
-      slong prec = 200;
+      slong prec = 4000;
       std::string jsonFileName = PolfileToJson(dir_entry.path().string());
       if (jsonFileName.empty()) {
         std::cout << "Error converting " << dir_entry.path().string()
                   << std::endl;
         break;
       }
-      std::vector<ACB> mps_roots =
+      std::vector<ACB> MPSRoots =
           MPSolvePolFile(dir_entry.path().string(), prec);
-
-      std::ifstream jsonStream(jsonFileName);
-      json polyFromJson;
-      jsonStream >> polyFromJson;
-      polyjson j = polyFromJson.get<polyjson>();
+      polyjson p = loadJson(jsonFileName);
+      ComplexPoly poly = toComplexPoly(p);
+      auto jsonMPSRoots = poly.MPSolve(prec);
+      assert(jsonMPSRoots.size() == MPSRoots.size());
+      CompareVectors();
     }
   }
 }

@@ -2,6 +2,7 @@
 
 #include "mpreal.h"
 #include <array>
+#include <cassert>
 #include <cmath>
 #include <complex>
 #include <fstream>
@@ -28,6 +29,7 @@ void from_json(const json &j, mpreal &p) {
 }; // namespace mpfr
 
 struct polyjson {
+  slong precision;
   std::vector<mpfr::mpreal> RealCoefficients;
   std::vector<mpfr::mpreal> ImagCoefficients;
 
@@ -38,7 +40,27 @@ struct polyjson {
                                  sparse, sparse_indices, filename);
 };
 
-ComplexPoly 
+polyjson loadJson(std::string s) {
+  polyjson p;
+  json j;
+  std::ifstream loadfile(s);
+  loadfile >> j;
+  p = j.get<polyjson>();
+}
+
+ComplexPoly toComplexPoly(const polyjson &p) {
+  std::vector<ACB> coeffs;
+
+  assert((p.RealCoefficients.size() == p.ImagCoefficients.size()));
+
+  for (slong i = 0; i < p.RealCoefficients.size(); i++) {
+    coeffs.emplace_back(ACB(ARB(p.RealCoefficients[i], p.precision),
+                            ARB(p.ImagCoefficients[i], p.precision)));
+  }
+
+  return polyFromVec(coeffs, p.precision);
+}
+
 // below returns the name of the file saved, or any empty string on failure.
 std::string saveJSON(mps_context *local_s, mps_polynomial *poly_local_poly,
                      const std::string &polfilename) {
