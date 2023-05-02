@@ -453,37 +453,8 @@ static struct {
 // }
 
 void inline sortRootVector(std::vector<ACB> &roots) {
-  struct {
-    bool operator()(const ACB &a, const ACB &b) const {
 
-      ARB re1(0.0, a.intprec);
-      ARB im1(0.0, b.intprec);
-
-      ARB re2(0.0, a.intprec);
-      ARB im2(0.0, b.intprec);
-
-      acb_get_real(re1.r, a.c);
-      acb_get_real(re2.r, b.c);
-      acb_get_imag(im1.r, a.c);
-      acb_get_imag(im2.r, b.c);
-
-      if (arb_lt(re1.r, re2.r) != 0) {
-        return true;
-      }
-      if (arb_gt(re1.r, re2.r) != 0) {
-        return false;
-      }
-      if (arb_lt(im1.r, im2.r) != 0) {
-        return true;
-      }
-      if (arb_gt(im1.r, im2.r) != 0) {
-        return false;
-      }
-      return false;
-    }
-  } customLessLex;
-
-  std::sort(roots.begin(), roots.end(), customLessLex);
+  std::sort(roots.begin(), roots.end(), ACB::customLessLex);
 }
 
 class ComplexPoly {
@@ -531,12 +502,12 @@ public:
       // DEBUG
       // std::cout << "debug :" << p->density << std::endl;
       // END DEBUG
-      std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
-                << std::endl;
+      //std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
+      //          << std::endl;
       pthread_mutex_unlock(&p->mfpc_mutex[0]);
       mps_monomial_poly_raise_precision(s, MPS_POLYNOMIAL(p), wp);
-      std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
-                << std::endl;
+      //std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
+       //         << std::endl;
     } else {
       pthread_mutex_unlock(&p->mfpc_mutex[0]);
     }
@@ -771,7 +742,7 @@ public:
     mps_phase phase = no_phase;
     mps_context_set_starting_phase(status, phase);
     mps_context_set_output_goal(status, MPS_OUTPUT_GOAL_APPROXIMATE);
-
+    //mps_content_set_output_format()
     mps_mpsolve(status);
     // Get the roots in a <code>cplx_t</code> vector. Please note that
     // this make completely useless to have asked 512 bits of output

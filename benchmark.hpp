@@ -459,7 +459,7 @@ public:
     auto maxRad = RRE.maxRadius(depth); // TODO(orebas) 20 is a magic number
     auto xrand = dist(rd);
     auto yrand = dist(rd);
-    std::cout << xrand << yrand;
+    //std::cout << xrand << yrand;
     ACB randomcenter = ACB(maxRad) * ACB(xrand, yrand, poly.intprec);
     ComplexPoly shiftedpoly(poly);
     acb_poly_taylor_shift(shiftedpoly.pol, shiftedpoly.pol, randomcenter.c,
@@ -589,10 +589,10 @@ void solveDebug(mps_context *local_s, mps_polynomial *poly_local_poly,
   std::vector<std::vector<ACB>> rootapprox(depth);
   FGS.DLGRadii(radii);
   FGS.FGRoots(rootapprox);
-  std::cout << radii;
-  std::cout << rootapprox;
+  //std::cout << radii;
+  //std::cout << rootapprox;
   // std::cout << powersums(110, 20, 6000);
-  std::cout << "Begin RRE debugging" << std::endl;
+  //std::cout << "Begin RRE debugging" << std::endl;
   RecursiveRadiiEstimator RRE(acb_style_poly);
 
   /*for (int d = 0; d < 15; d++) {
@@ -604,19 +604,19 @@ void solveDebug(mps_context *local_s, mps_polynomial *poly_local_poly,
   }*/
 
   for (int depth = 0; depth < 15; depth++) {
-    std::cout << depth << "[min]" << RRE.minRadius(depth);
-    std::cout << "[max]" << RRE.maxRadius(depth);
+    //std::cout << depth << "[min]" << RRE.minRadius(depth);
+    //std::cout << "[max]" << RRE.maxRadius(depth);
   }
 
   for (int depth = 0; depth < 15; depth++) {
-    std::cout << depth << "[minRoot]" << RRE.minRoot(depth);
+    //std::cout << depth << "[minRoot]" << RRE.minRoot(depth);
 
-    std::cout << depth << "[minRoot]" << RRE.maxRoot(depth);
+    //std::cout << depth << "[minRoot]" << RRE.maxRoot(depth);
   }
 
   double initTime = measure<std::chrono::milliseconds>::execution(func);
   (void)fflush(stdout);
-  std::cout << polfilename << " took " << initTime << "ms." << std::endl;
+  //std::cout << polfilename << " took " << initTime << "ms." << std::endl;
   cleanup_context(local_s, nullptr, MPS_POLYNOMIAL(local_poly), local_s, false);
 }
 

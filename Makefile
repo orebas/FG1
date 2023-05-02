@@ -9,7 +9,7 @@ CFLAGS=-I. -Wall -pedantic  -ggdb --std=c++2a -Wno-variadic-macros
 DEPS = ga.h
 #LIBS = -lm  -lboost_program_options -lboost_iostreams -lgsl -lflintarb
 #FFTWLIBS = -lfftw3 -lfftw3f
-LIBS =   -lflint -lflint-arb -lgmp -lmpfr
+LIBS =   -lflint -lflint-arb -lgmp -lmpfr -lfmt
 #-fsanitize=address -static-libasan
 benchmark: benchmark.cpp benchmark.hpp arbxx.hpp
 	$(CPP) $(CFLAGS) -I./MPSolve/include -L ./MPSolve/libmps -ggdb     -O0 benchmark.cpp   -o benchmark $(LIBS) -lmps

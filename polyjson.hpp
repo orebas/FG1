@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iterator>
 #include <vector>
+#include <fmt/core.h>
 
 #include "benchmark.hpp"
 
@@ -45,13 +46,17 @@ polyjson loadJson(std::string s) {
   json j;
   std::ifstream loadfile(s);
   loadfile >> j;
+  //std::cout << j <<std::endl;
   p = j.get<polyjson>();
 }
 
 ComplexPoly toComplexPoly(const polyjson &p) {
   std::vector<ACB> coeffs;
-
+std::cout << "Real: " << p.RealCoefficients.size() << " Imag: " << p.ImagCoefficients.size() << std::endl;
+  //fmt::print("Real: {}, Imag: {}",p.RealCoefficients.size(), p.ImagCoefficients.size() );
+  std::cout << std::endl;
   assert((p.RealCoefficients.size() == p.ImagCoefficients.size()));
+
 
   for (slong i = 0; i < p.RealCoefficients.size(); i++) {
     coeffs.emplace_back(ACB(ARB(p.RealCoefficients[i], p.precision),
@@ -73,14 +78,14 @@ std::string saveJSON(mps_context *local_s, mps_polynomial *poly_local_poly,
   ComplexPoly acb_style_poly = ComplexPoly(local_s, local_poly, prec);
 
   auto poly_vectors = PolToMPRealVectors(local_s, local_poly, desired_prec);
-  std::cout << poly_vectors.first << poly_vectors.second << std::endl;
+  //std::cout << poly_vectors.first << poly_vectors.second << std::endl;
   polyjson to_save;
   to_save.RealCoefficients = poly_vectors.first;
   to_save.ImagCoefficients = poly_vectors.second;
   to_save.sparse = false;
   to_save.filename = polfilename + ".json";
   json j1(to_save);
-  std::cout << j1 << std::endl;
+  //std::cout << j1 << std::endl;
   std::ofstream fileoutput(to_save.filename);
   fileoutput << j1 << std::endl;
   fileoutput.close();
@@ -147,12 +152,12 @@ PolToMPRealVectors(mps_context *s, mps_monomial_poly *p, slong wp) {
   std::vector<mpfr::mpreal> resultsComplex;
   pthread_mutex_lock(&p->mfpc_mutex[0]);
   if (mpc_get_prec(p->mfpc[0]) < wp) {
-    std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
-              << std::endl;
+    //std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
+      //        << std::endl;
     pthread_mutex_unlock(&p->mfpc_mutex[0]);
     mps_monomial_poly_raise_precision(s, MPS_POLYNOMIAL(p), wp);
-    std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
-              << std::endl;
+    //std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
+      //        << std::endl;
   } else {
     pthread_mutex_unlock(&p->mfpc_mutex[0]);
   }

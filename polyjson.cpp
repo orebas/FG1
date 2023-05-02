@@ -2,7 +2,6 @@
 #include "arbxx.hpp"
 #include "benchmark.hpp"
 #include <iostream>
-#include <fmt/core.h>
 
 std::vector<ACB> MPSolvePolFile(const std::string &polfilename, slong prec);
 std::vector<ACB> solveMPSContext(mps_context *local_s,
@@ -10,7 +9,7 @@ std::vector<ACB> solveMPSContext(mps_context *local_s,
                                  const std::string &polfilename, slong prec);
 
 void parsePol2(const std::string &polfilename) {
-  std::cout << "test\n";
+ // std::cout << "test\n";
   mps_context *local_s = nullptr;
   mps_polynomial *local_poly = nullptr;
 
@@ -114,7 +113,7 @@ void deleteme() {
                                         std::vector<ACB>(0, ACB(0, 0, prec)));
   for (int i = 0; i < tests; i++) {
     for (int j = 0; j < d; j++) {
-      auto xd = dist(rd);
+      //auto xd = dist(rd);
       ACB cc(dist(rd), dist(rd), prec);
       bmatrix[i].push_back(cc);
     }
@@ -123,7 +122,7 @@ void deleteme() {
       bmatrix[i][j] /= ACB(norm);
     }
   }
-  std::cout << bmatrix << std::endl;
+  //std::cout << bmatrix << std::endl;
 }
 
 void compareVectors(std:: string filename, std::vector<ACB> r1, std::vector<ACB> r2, slong prec);
@@ -141,7 +140,7 @@ int main(int argc, char **argv) {
       }
       std::vector<ACB> MPSRoots =
           MPSolvePolFile(dir_entry.path().string(), prec);
-      polyjson p = loadJson(jsonFileName);
+      /*polyjson p = loadJson(jsonFileName);
       ComplexPoly poly = toComplexPoly(p);
       std::vector<ACB> rootsFromJson = poly.MPSolve(prec);
       std::sort(rootsFromJson.begin(), rootsFromJson.end(),ACB::customLess);
@@ -149,14 +148,14 @@ int main(int argc, char **argv) {
       assert(rootsFromJson.size() == MPSRoots.size());
       
       compareVectors(jsonFileName, MPSRoots, rootsFromJson, prec);
-      
+      */
     }
   }
 }
 
 
 void compareVectors(std:: string filename, std::vector<ACB> r1, std::vector<ACB> r2, slong prec){
-//fmt::print("Solving {}", filename);  
+fmt::print("Solving {}", filename);  
 
 }
 
@@ -243,8 +242,9 @@ std::vector<ACB> MPSolvePolFile(const std::string &polfilename, slong prec) {
 
   /* Select the starting phase according to user input */
   mps_context_set_starting_phase(local_s, phase);
-
-  return solveMPSContext(local_s, local_poly, polfilename, prec);
+ 
+  auto retvec  =  solveMPSContext(local_s, local_poly, polfilename, prec);
+  return retvec;
 }
 
 std::vector<ACB> solveMPSContext(mps_context *local_s,
@@ -253,13 +253,12 @@ std::vector<ACB> solveMPSContext(mps_context *local_s,
   mps_monomial_poly *local_poly =
       MPS_POLYNOMIAL_CAST(mps_monomial_poly, poly_local_poly);
 
-  std::cout << "Starting " << polfilename << std::endl;
+  //std::cout << "Starting " << polfilename << std::endl;
   const int desired_prec = prec;
   mps_context_set_output_prec(local_s, desired_prec);
   mps_context_set_output_goal(local_s, MPS_OUTPUT_GOAL_APPROXIMATE);
   /* Solve the polynomial */
   auto funcMPS = [&]() -> void { mps_mpsolve(local_s); };
-
   double mpsTime =
       measure<std::chrono::milliseconds>::execution(funcMPS); // runs mpsolve
 
@@ -271,63 +270,14 @@ std::vector<ACB> solveMPSContext(mps_context *local_s,
     mps_roots.emplace_back(ACB(results[rt], prec));
   }
 
-  struct {
-    bool operator()(const ACB &a, const ACB &b) const {
-      if (arb_lt(a.abs().r, b.abs().r) != 0) {
-        return true;
-      }
-      if (arb_gt(a.abs().r, b.abs().r) != 0) {
-        return false;
-      }
-      ARB arg1(0.0, a.intprec);
-      ARB arg2(0.0, b.intprec);
-      acb_arg(arg1.r, a.c, a.intprec);
-      acb_arg(arg2.r, b.c, a.intprec);
-      if (arb_lt(arg1.r, arg2.r) != 0) {
-        return true;
-      }
-      if (arb_gt(arg1.r, arg2.r) != 0) {
-        return false;
-      }
-      return false;
-    }
-  } customLess;
 
-  struct {
-    bool operator()(const ACB &a, const ACB &b) const {
-
-      ARB re1(0.0, a.intprec);
-      ARB im1(0.0, b.intprec);
-
-      ARB re2(0.0, a.intprec);
-      ARB im2(0.0, b.intprec);
-
-      acb_get_real(re1.r, a.c);
-      acb_get_real(re2.r, b.c);
-      acb_get_imag(im1.r, a.c);
-      acb_get_imag(im2.r, b.c);
-
-      if (arb_lt(re1.r, re2.r)) {
-        return true;
-      }
-      if (arb_gt(re1.r, re2.r)) {
-        return false;
-      }
-      if (arb_lt(im1.r, im2.r)) {
-        return true;
-      }
-      if (arb_gt(im1.r, im2.r)) {
-        return false;
-      }
-      return false;
-    }
-  } customLessLex;
-
-  std::sort(mps_roots.begin(), mps_roots.end(), customLessLex);
-  std::cout << polfilename << " took " << mpsTime << "ms. for MPS "
-            << std::endl;
-  std::cout << mps_roots.size() << std::endl;
+  std::sort(mps_roots.begin(), mps_roots.end(), ACB::customLessLex);
+  //std::cout << polfilename << " took " << mpsTime << "ms. for MPS "
+   //         << std::endl;
+  //std::cout << mps_roots.size() << std::endl;
   mpc_vfree(results);
-  cleanup_context(local_s, nullptr, MPS_POLYNOMIAL(local_poly), local_s, false);
+
+  cleanup_context(local_s, nullptr, MPS_POLYNOMIAL(local_poly), local_s, true);
+
   return mps_roots;
 }
