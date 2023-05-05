@@ -9,7 +9,7 @@
 #include <iostream>
 #include <iterator>
 #include <vector>
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include "benchmark.hpp"
 
@@ -39,6 +39,15 @@ struct polyjson {
   std::string filename;
   NLOHMANN_DEFINE_TYPE_INTRUSIVE(polyjson, RealCoefficients, ImagCoefficients,
                                  sparse, sparse_indices, filename);
+  void print(){
+    std::cout << "Precision: " << precision << std::endl;
+    std::cout << "Filename: " << filename << std::endl;
+    std::cout << "Sparse: " << sparse << std::endl;
+    std::cout << "Sparse Indices: " << sparse_indices << std::endl;
+    std::cout << "Reals: " << RealCoefficients << std::endl;
+    std::cout << "Imags: " << ImagCoefficients << std::endl;
+    
+  }
 };
 
 polyjson loadJson(std::string s) {
@@ -48,21 +57,28 @@ polyjson loadJson(std::string s) {
   loadfile >> j;
   //std::cout << j <<std::endl;
   p = j.get<polyjson>();
+  //p.print();
+  return p;
 }
 
 ComplexPoly toComplexPoly(const polyjson &p) {
   std::vector<ACB> coeffs;
 std::cout << "Real: " << p.RealCoefficients.size() << " Imag: " << p.ImagCoefficients.size() << std::endl;
   //fmt::print("Real: {}, Imag: {}",p.RealCoefficients.size(), p.ImagCoefficients.size() );
-  std::cout << std::endl;
+  //std::cout << std::endl;
   assert((p.RealCoefficients.size() == p.ImagCoefficients.size()));
 
-
+//std::cout << "before loop" << std::endl;
   for (slong i = 0; i < p.RealCoefficients.size(); i++) {
-    coeffs.emplace_back(ACB(ARB(p.RealCoefficients[i], p.precision),
-                            ARB(p.ImagCoefficients[i], p.precision)));
-  }
+    
+//std::cout << "in  loop " << i <<   std::endl;
 
+    ACB c(ARB(p.RealCoefficients[i], p.precision),
+                            ARB(p.ImagCoefficients[i], p.precision));
+  //  std::cout << c << std::endl;
+    coeffs.push_back(c);
+  }
+//std::cout << coeffs << std::endl;
   return polyFromVec(coeffs, p.precision);
 }
 

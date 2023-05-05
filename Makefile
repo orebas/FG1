@@ -32,7 +32,7 @@ benchmark-lint: benchmark.cpp benchmark.hpp arbxx.hpp
 	clang-tidy  -header-filter=.*.hpp --checks=*,-bugprone-easily-swappable-parameters,-llvmlibc-*,-readability-identifier-length,-fuchsia-overloaded-operator,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-modernize-use-trailing-return-type,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-hicpp-no-array-decay,-altera-unroll-loops,-fuchsia-default-arguments-calls benchmark.cpp   -- -I. -I./MPSolve/include  --std=c++2a -Wno-register    
 
 polyjson:  benchmark.hpp arbxx.hpp polyjson.cpp polyjson.hpp
-	$(CPP) $(CFLAGS) -I./MPSolve/include -L ./MPSolve/libmps -ggdb     -O0 polyjson.cpp   -o polyjson $(LIBS) -lmps
+	$(CPP) $(CFLAGS) -I./MPSolve/include -L ./MPSolve/libmps -ggdb  -fno-omit-frame-pointer -O0 polyjson.cpp   -o polyjson   $(LIBS) -lmps
 
 
 #-fsanitize=undefined -fno-sanitize-recover=all -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fno-sanitize=null -fno-sanitize=alignment 

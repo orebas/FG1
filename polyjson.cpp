@@ -140,22 +140,28 @@ int main(int argc, char **argv) {
       }
       std::vector<ACB> MPSRoots =
           MPSolvePolFile(dir_entry.path().string(), prec);
-      /*polyjson p = loadJson(jsonFileName);
+      polyjson p = loadJson(jsonFileName);
+      p.precision = prec;
+      //p.print();
       ComplexPoly poly = toComplexPoly(p);
       std::vector<ACB> rootsFromJson = poly.MPSolve(prec);
-      std::sort(rootsFromJson.begin(), rootsFromJson.end(),ACB::customLess);
-      std::sort(MPSRoots.begin(), MPSRoots.end(), ACB::customLess);
+      
       assert(rootsFromJson.size() == MPSRoots.size());
       
       compareVectors(jsonFileName, MPSRoots, rootsFromJson, prec);
-      */
+      
     }
   }
 }
 
 
 void compareVectors(std:: string filename, std::vector<ACB> r1, std::vector<ACB> r2, slong prec){
-fmt::print("Solving {}", filename);  
+fmt::print("Comparing two solutions of {}\n", filename);
+      std::sort(rootsFromJson.begin(), rootsFromJson.end(),ACB::customLess);
+      std::sort(MPSRoots.begin(), MPSRoots.end(), ACB::customLess);
+      std::cout << rootsFromJson.size() << " " << MPSRoots.size() << std::endl;
+
+
 
 }
 
