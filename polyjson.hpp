@@ -5,11 +5,11 @@
 #include <cassert>
 #include <cmath>
 #include <complex>
+#include <fmt/format.h>
 #include <fstream>
 #include <iostream>
 #include <iterator>
 #include <vector>
-#include <fmt/format.h>
 
 #include "benchmark.hpp"
 
@@ -39,14 +39,13 @@ struct polyjson {
   std::string filename;
   NLOHMANN_DEFINE_TYPE_INTRUSIVE(polyjson, RealCoefficients, ImagCoefficients,
                                  sparse, sparse_indices, filename);
-  void print(){
+  void print() {
     std::cout << "Precision: " << precision << std::endl;
     std::cout << "Filename: " << filename << std::endl;
     std::cout << "Sparse: " << sparse << std::endl;
     std::cout << "Sparse Indices: " << sparse_indices << std::endl;
     std::cout << "Reals: " << RealCoefficients << std::endl;
     std::cout << "Imags: " << ImagCoefficients << std::endl;
-    
   }
 };
 
@@ -55,53 +54,54 @@ polyjson loadJson(std::string s) {
   json j;
   std::ifstream loadfile(s);
   loadfile >> j;
-  //std::cout << j <<std::endl;
+  // std::cout << j <<std::endl;
   p = j.get<polyjson>();
-  //p.print();
+  // p.print();
   return p;
 }
 
 ComplexPoly toComplexPoly(const polyjson &p) {
   std::vector<ACB> coeffs;
-std::cout << "Real: " << p.RealCoefficients.size() << " Imag: " << p.ImagCoefficients.size() << std::endl;
-  //fmt::print("Real: {}, Imag: {}",p.RealCoefficients.size(), p.ImagCoefficients.size() );
-  //std::cout << std::endl;
+  std::cout << "Real: " << p.RealCoefficients.size()
+            << " Imag: " << p.ImagCoefficients.size() << std::endl;
+  // fmt::print("Real: {}, Imag: {}",p.RealCoefficients.size(),
+  // p.ImagCoefficients.size() ); std::cout << std::endl;
   assert((p.RealCoefficients.size() == p.ImagCoefficients.size()));
 
-//std::cout << "before loop" << std::endl;
+  // std::cout << "before loop" << std::endl;
   for (slong i = 0; i < p.RealCoefficients.size(); i++) {
-    
-//std::cout << "in  loop " << i <<   std::endl;
+
+    // std::cout << "in  loop " << i <<   std::endl;
 
     ACB c(ARB(p.RealCoefficients[i], p.precision),
-                            ARB(p.ImagCoefficients[i], p.precision));
-  //  std::cout << c << std::endl;
+          ARB(p.ImagCoefficients[i], p.precision));
+    //  std::cout << c << std::endl;
     coeffs.push_back(c);
   }
-//std::cout << coeffs << std::endl;
+  // std::cout << coeffs << std::endl;
   return polyFromVec(coeffs, p.precision);
 }
 
 // below returns the name of the file saved, or any empty string on failure.
 std::string saveJSON(mps_context *local_s, mps_polynomial *poly_local_poly,
                      const std::string &polfilename) {
-  const int desired_prec = 10000;
+  const int desired_prec = 20000;
   mps_monomial_poly *local_poly =
       MPS_POLYNOMIAL_CAST(mps_monomial_poly, poly_local_poly);
   mps_context_set_output_prec(local_s, desired_prec);
   mps_context_set_output_goal(local_s, MPS_OUTPUT_GOAL_APPROXIMATE);
-  slong prec = 2000; // TODO(orebas) MAGIC NUMBER
+  slong prec = desired_prec; // TODO(orebas) MAGIC NUMBER
   ComplexPoly acb_style_poly = ComplexPoly(local_s, local_poly, prec);
 
   auto poly_vectors = PolToMPRealVectors(local_s, local_poly, desired_prec);
-  //std::cout << poly_vectors.first << poly_vectors.second << std::endl;
+  // std::cout << poly_vectors.first << poly_vectors.second << std::endl;
   polyjson to_save;
   to_save.RealCoefficients = poly_vectors.first;
   to_save.ImagCoefficients = poly_vectors.second;
   to_save.sparse = false;
   to_save.filename = polfilename + ".json";
   json j1(to_save);
-  //std::cout << j1 << std::endl;
+  // std::cout << j1 << std::endl;
   std::ofstream fileoutput(to_save.filename);
   fileoutput << j1 << std::endl;
   fileoutput.close();
@@ -140,7 +140,7 @@ std::string PolfileToJson(const std::string &polfilename) {
 
   if (input_precision >= 0) {
     mps_polynomial_set_input_prec(local_s, local_poly,
-                                  2000); // TODO(orebas) MAGIC NUMBER
+                                  20000); // TODO(orebas) MAGIC NUMBER
   }
   if (!explicit_algorithm_selection) {
     mps_context_select_algorithm(local_s,
@@ -168,12 +168,12 @@ PolToMPRealVectors(mps_context *s, mps_monomial_poly *p, slong wp) {
   std::vector<mpfr::mpreal> resultsComplex;
   pthread_mutex_lock(&p->mfpc_mutex[0]);
   if (mpc_get_prec(p->mfpc[0]) < wp) {
-    //std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
-      //        << std::endl;
+    // std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
+    //         << std::endl;
     pthread_mutex_unlock(&p->mfpc_mutex[0]);
     mps_monomial_poly_raise_precision(s, MPS_POLYNOMIAL(p), wp);
-    //std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
-      //        << std::endl;
+    // std::cout << "it is " << mpc_get_prec(p->mfpc[0]) << " and " << wp
+    //         << std::endl;
   } else {
     pthread_mutex_unlock(&p->mfpc_mutex[0]);
   }

@@ -34,6 +34,10 @@ benchmark-lint: benchmark.cpp benchmark.hpp arbxx.hpp
 polyjson:  benchmark.hpp arbxx.hpp polyjson.cpp polyjson.hpp
 	$(CPP) $(CFLAGS) -I./MPSolve/include -L ./MPSolve/libmps -ggdb  -fno-omit-frame-pointer -O0 polyjson.cpp   -o polyjson   $(LIBS) -lmps
 
+polyjson-fast:  benchmark.hpp arbxx.hpp polyjson.cpp polyjson.hpp
+	$(CPP) $(CFLAGS) -I./MPSolve/include -L ./MPSolve/libmps -ggdb  -fno-omit-frame-pointer -O3 -march=native  polyjson.cpp   -o polyjson   $(LIBS) -lmps
+
+
 
 #-fsanitize=undefined -fno-sanitize-recover=all -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fno-sanitize=null -fno-sanitize=alignment 
 benchmark-asan: benchmark.cpp benchmark.hpp arbxx.hpp

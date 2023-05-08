@@ -1,0 +1,11 @@
+Real: 24 Imag: 24
+Comparing two solutions of ./lar4.pol.json
+23 23
+L2 diff is [4.3590715399848627620e+1767 +/- 1.53e+1747] 
+L1 diff is [1.3204653028360666110e+884 +/- 4.64e+864] 
+Real: 342 Imag: 342
+Comparing two solutions of ./chrma342.pol.json
+341 341
+L2 diff is [391.58693063312655417 +/- 1.20e-18] 
+L1 diff is [164.17082588522164710 +/- 3.83e-18] 
+Real: 45 Imag: 45
